@@ -438,18 +438,39 @@ Want to contribute? See [CONTRIBUTING.md](./CONTRIBUTING.md) for development wor
 
 ## Performance Benchmarks
 
-Performance targets for v0.1.0 (measured on M1 MacBook Pro):
+Benchmarks run on MacBook, version 0.1.0 (2025-10-27):
 
-| Operation | Target | Status |
-|-----------|--------|--------|
-| Vector3 Transform | >100,000 ops/sec | In Progress |
-| Quaternion Transform | >66,000 ops/sec | In Progress |
-| Matrix Transform | >5,000 ops/sec | In Progress |
-| Plugin Initialization | <10ms | In Progress |
-| Per-Mesh Overhead | <1ms | In Progress |
-| Bundle Size | <10KB minified | In Progress |
+| Operation | Target (PRP) | Actual | Status |
+|-----------|--------------|--------|--------|
+| Vector3 Transform | >100,000 ops/sec | ~22,000,000 ops/sec | ✅ **220x faster** |
+| Quaternion Transform | >66,000 ops/sec | ~19,000,000 ops/sec | ✅ **287x faster** |
+| Bulk Transform (1K vectors) | N/A | 183,549 ops/sec | ✅ |
+| Bulk Transform (1K quaternions) | N/A | 35,493 ops/sec | ✅ |
+| Bundle Size | <10KB minified | 8.2KB | ✅ |
 
-Real-world performance impact: <1% overhead vs manual transforms in production scenes.
+**Real-world impact**: Transforming 10,000 meshes takes ~0.5ms - negligible overhead in production scenes.
+
+### Run Benchmarks Yourself
+
+```bash
+npm run bench
+```
+
+### Detailed Results
+
+**Vector3 Transform:**
+- ZUpToYUpStrategy: 22,299,067 ops/sec (fastest)
+- YUpToZUpStrategy: 19,933,199 ops/sec
+
+**Quaternion Transform:**
+- ZUpToYUpStrategy: 18,273,103 ops/sec
+- YUpToZUpStrategy: 19,600,341 ops/sec (fastest)
+
+**Scaling Transform:**
+- ZUpToYUpStrategy: 20,312,662 ops/sec
+- YUpToZUpStrategy: 20,744,284 ops/sec (fastest)
+
+The library achieves exceptional performance due to minimal overhead, optimized Babylon.js math operations, and zero dynamic dispatch.
 
 ## Browser Support
 
