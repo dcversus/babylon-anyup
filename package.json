@@ -1,6 +1,6 @@
 {
   "name": "@dcversus/babylon-anyup",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Babylon.js plugin for Z-up coordinate system compatibility with automatic transforms",
   "keywords": [
     "babylonjs",
