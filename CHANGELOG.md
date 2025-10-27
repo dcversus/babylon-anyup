@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] - 2025-01-XX
+### Added
+- Comprehensive API documentation in README.md
+- Migration guide from manual transforms in README.md
+- GitHub Pages deployment with live examples
+- Example files (warcraft3-terrain, blender-import)
+
+## [0.0.1] - 2025-10-27
 
 ### Added
 - Initial release of `@dcversus/babylon-anyup`
@@ -19,16 +25,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-convert mode for automatic mesh transformation
 - Manual conversion API for specific meshes/nodes
 - Original transform preservation (optional)
-- Comprehensive test suite (>85% coverage)
+- Comprehensive test suite (87.42% coverage)
 - TypeScript strict mode support
 - Full API documentation in README
+- SECURITY.md for vulnerability reporting
+- CODE_OF_CONDUCT.md (Contributor Covenant 2.0)
+- CONTRIBUTING.md with detailed development workflow
+- CI/CD pipeline with automated testing and publishing
 
 ### Features
 - Coordinate system conversion: Z-up ↔ Y-up
 - Supports `AbstractMesh` and `TransformNode`
-- Zero dependencies (peer: `@babylonjs/core`)
-- Bundle size: ~3.4 KB (minified)
-- Performance: <1% overhead vs manual transforms
+- Zero runtime dependencies (peer: `@babylonjs/core ^7.0.0`)
+- Bundle size: 8.2 KB (39.2 KB unpacked)
+- Tree-shakeable ESM/CJS dual output
+- Provenance attestation for supply chain security
 
-[Unreleased]: https://github.com/dcversus/babylon-anyup/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/dcversus/babylon-anyup/releases/tag/v0.1.0
+[Unreleased]: https://github.com/dcversus/babylon-anyup/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/dcversus/babylon-anyup/releases/tag/v0.0.1

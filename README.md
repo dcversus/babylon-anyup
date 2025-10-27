@@ -87,65 +87,354 @@ const mesh = MeshBuilder.CreateBox('box', { size: 2 }, scene);
 
 Main plugin class for coordinate system conversion.
 
-**Constructor Options:**
+#### Constructor
+
+```typescript
+new AnyUpPlugin(options: AnyUpPluginOptions)
+```
+
+**Options:**
 
 ```typescript
 interface AnyUpPluginOptions {
-  sourceSystem: 'y-up' | 'z-up';
-  targetSystem: 'y-up' | 'z-up';
-  autoConvert: boolean;
-  preserveOriginal: boolean;
+  sourceSystem: 'y-up' | 'z-up';  // Source coordinate system
+  targetSystem: 'y-up' | 'z-up';  // Target coordinate system
+  autoConvert: boolean;           // Auto-convert all meshes on initialize()
+  preserveOriginal: boolean;      // Store original transforms in metadata
 }
 ```
 
-**Methods:**
+- `sourceSystem` - Input coordinate system (`'z-up'` for Warcraft 3, Blender; `'y-up'` for Babylon.js)
+- `targetSystem` - Output coordinate system (must differ from source)
+- `autoConvert` - If `true`, automatically converts all existing meshes when `initialize()` is called
+- `preserveOriginal` - If `true`, stores original transforms in `mesh.metadata` before conversion
 
-- `initialize(scene: Scene): void` - Initialize the plugin with a Babylon.js scene
-- `convertMesh(mesh: Mesh): void` - Convert a single mesh
-- `convertTransformNode(node: TransformNode): void` - Convert a transform node
-- `dispose(): void` - Clean up plugin resources
+#### Properties
+
+- `name: string` - Plugin identifier (readonly, always `"AnyUpPlugin"`)
+- `options: AnyUpPluginOptions` - Configuration options (readonly)
+
+#### Methods
+
+##### `initialize(scene: Scene): void`
+
+Initialize the plugin with a Babylon.js scene.
+
+```typescript
+const scene = new Scene(engine);
+plugin.initialize(scene);
+```
+
+**Behavior:**
+- If `autoConvert: true`, converts all existing meshes and transform nodes
+- Stores plugin reference in `scene.metadata` for later access
+
+##### `convertMesh(mesh: AbstractMesh): void`
+
+Convert a single mesh's transform to the target coordinate system.
+
+```typescript
+const box = MeshBuilder.CreateBox('box', { size: 2 }, scene);
+plugin.convertMesh(box);
+```
+
+**Behavior:**
+- Transforms `position`, `rotationQuaternion`, and `scaling`
+- If `preserveOriginal: true`, stores original values in `mesh.metadata`
+- Handles null `rotationQuaternion` gracefully
+
+**Metadata (when `preserveOriginal: true`):**
+```typescript
+mesh.metadata = {
+  originalPosition: Vector3,
+  originalRotation: Quaternion | null,
+  originalScaling: Vector3,
+};
+```
+
+##### `convertTransformNode(node: TransformNode): void`
+
+Convert a transform node (same as `convertMesh()` but for nodes without geometry).
+
+```typescript
+const parent = new TransformNode('parent', scene);
+plugin.convertTransformNode(parent);
+```
+
+##### `dispose(): void`
+
+Clean up plugin resources. Call when the plugin is no longer needed.
+
+```typescript
+plugin.dispose();
+```
 
 ### Transform Strategies
 
-Pre-built transformation strategies:
+Low-level transformation strategies (used internally by `AnyUpPlugin`).
 
-- `ZUpToYUpStrategy` - Convert from Z-up to Y-up
-- `YUpToZUpStrategy` - Convert from Y-up to Z-up
+#### `ZUpToYUpStrategy`
 
-## Development
+Converts Z-up coordinates to Y-up (Blizzard games → Babylon.js).
 
-### Prerequisites
+```typescript
+import { ZUpToYUpStrategy } from '@dcversus/babylon-anyup';
 
-- Node.js >= 18.0.0
-- npm or yarn
-
-### Setup
-
-```bash
-git clone https://github.com/dcversus/babylon-anyup.git
-cd babylon-anyup
-npm install
+const strategy = new ZUpToYUpStrategy();
+const converted = strategy.convertPosition(new Vector3(1, 2, 3));
+// Result: Vector3(1, 3, -2)
 ```
 
-### Scripts
+**Transformation:**
+- Position: `(x, y, z)` → `(x, z, -y)`
+- Rotation: Applies -90° X-axis correction
+- Scaling: `(x, y, z)` → `(x, z, y)`
 
-```bash
-npm run dev          # Watch mode for development
-npm run build        # Build the library
-npm run typecheck    # TypeScript type checking
-npm run lint         # ESLint validation
-npm run test         # Run tests
-npm run test:watch   # Run tests in watch mode
-npm run test:coverage # Run tests with coverage
-npm run validate     # Run all quality checks
+#### `YUpToZUpStrategy`
+
+Converts Y-up coordinates to Z-up (Babylon.js → Blizzard games).
+
+```typescript
+import { YUpToZUpStrategy } from '@dcversus/babylon-anyup';
+
+const strategy = new YUpToZUpStrategy();
+const converted = strategy.convertPosition(new Vector3(1, 2, 3));
+// Result: Vector3(1, -3, 2)
 ```
 
-### Quality Standards
+**Transformation:**
+- Position: `(x, y, z)` → `(x, -z, y)`
+- Rotation: Applies +90° X-axis correction
+- Scaling: `(x, y, z)` → `(x, z, y)`
 
-- **Test Coverage**: Minimum 80%
-- **File Size**: Maximum 500 lines per file
-- **TypeScript**: Strict mode, no `any` types
-- **ESLint**: Zero errors, zero warnings
+#### `TransformStrategyFactory`
+
+Factory for creating transformation strategies.
+
+```typescript
+import { TransformStrategyFactory } from '@dcversus/babylon-anyup';
+
+const strategy = TransformStrategyFactory.createStrategy('z-up', 'y-up');
+```
+
+**Throws:**
+- `Error` if `source === target`
+- `Error` if conversion not supported
+
+## Usage Examples
+
+### Warcraft 3 Terrain Import
+
+```typescript
+import { Engine, Scene } from '@babylonjs/core';
+import { AnyUpPlugin } from '@dcversus/babylon-anyup';
+
+const engine = new Engine(canvas);
+const scene = new Scene(engine);
+
+// Initialize plugin for Z-up (Warcraft 3)
+const plugin = new AnyUpPlugin({
+  sourceSystem: 'z-up',
+  targetSystem: 'y-up',
+  autoConvert: true,
+  preserveOriginal: false,
+});
+
+plugin.initialize(scene);
+
+// Load Warcraft 3 terrain (automatically converted)
+const terrain = await loadW3Terrain('map.w3e');
+scene.addMesh(terrain); // Already in Y-up coordinates!
+```
+
+### Selective Conversion (Manual Mode)
+
+```typescript
+const plugin = new AnyUpPlugin({
+  sourceSystem: 'z-up',
+  targetSystem: 'y-up',
+  autoConvert: false, // Disable auto-conversion
+  preserveOriginal: false,
+});
+
+plugin.initialize(scene);
+
+// Only convert specific meshes
+const terrain = loadWarcraft3Terrain();
+plugin.convertMesh(terrain);
+
+const units = loadWarcraft3Units();
+// Don't convert units (keep original orientation)
+```
+
+### Preserve Original Transforms
+
+```typescript
+const plugin = new AnyUpPlugin({
+  sourceSystem: 'z-up',
+  targetSystem: 'y-up',
+  autoConvert: true,
+  preserveOriginal: true, // Store originals
+});
+
+plugin.initialize(scene);
+
+// Access original transforms later
+scene.meshes.forEach(mesh => {
+  console.log('Original:', mesh.metadata.originalPosition);
+  console.log('Converted:', mesh.position);
+
+  // Revert if needed
+  if (someCondition) {
+    mesh.position = mesh.metadata.originalPosition.clone();
+  }
+});
+```
+
+### Blender Model Import
+
+```typescript
+import { SceneLoader } from '@babylonjs/core';
+import { AnyUpPlugin } from '@dcversus/babylon-anyup';
+
+// Initialize plugin
+const plugin = new AnyUpPlugin({
+  sourceSystem: 'z-up',
+  targetSystem: 'y-up',
+  autoConvert: false,
+  preserveOriginal: false,
+});
+
+plugin.initialize(scene);
+
+// Load Blender export (typically Z-up)
+SceneLoader.ImportMesh('', '/models/', 'blender_export.glb', scene, (meshes) => {
+  // Convert imported meshes
+  meshes.forEach(mesh => plugin.convertMesh(mesh));
+});
+```
+
+### Direct Strategy Usage (Advanced)
+
+```typescript
+import { ZUpToYUpStrategy } from '@dcversus/babylon-anyup';
+import { Vector3, Quaternion } from '@babylonjs/core';
+
+const strategy = new ZUpToYUpStrategy();
+
+// Convert individual components
+const zUpPos = new Vector3(10, 20, 30);
+const yUpPos = strategy.convertPosition(zUpPos);
+console.log(yUpPos); // Vector3(10, 30, -20)
+
+// Convert rotation
+const zUpRot = Quaternion.FromEulerAngles(0, Math.PI / 4, 0);
+const yUpRot = strategy.convertRotation(zUpRot);
+
+// Convert scaling
+const zUpScale = new Vector3(1, 2, 3);
+const yUpScale = strategy.convertScaling(zUpScale);
+console.log(yUpScale); // Vector3(1, 3, 2)
+```
+
+## Migration Guide
+
+### From Manual Transforms
+
+**Before (manual transformation):**
+
+```typescript
+// ❌ Old way: Manual coordinate conversion everywhere
+function loadW3Terrain(w3e: W3E) {
+  for (let i = 0; i < w3e.vertices.length; i++) {
+    // Manual Y↔Z swap and negation
+    vertices[i * 3] = w3e.vertices[i].x;
+    vertices[i * 3 + 1] = w3e.vertices[i].z;  // Y becomes Z
+    vertices[i * 3 + 2] = -w3e.vertices[i].y; // Z becomes -Y
+  }
+
+  // Hardcoded -90° rotation for models
+  mesh.rotation.x = -Math.PI / 2;
+}
+```
+
+**After (with babylon-anyup):**
+
+```typescript
+// ✅ New way: Automatic transformation
+import { AnyUpPlugin } from '@dcversus/babylon-anyup';
+
+const plugin = new AnyUpPlugin({
+  sourceSystem: 'z-up',
+  targetSystem: 'y-up',
+  autoConvert: true,
+  preserveOriginal: false,
+});
+
+plugin.initialize(scene);
+
+// Load terrain normally - plugin handles conversion
+function loadW3Terrain(w3e: W3E) {
+  // Just use data as-is, plugin converts automatically
+  const terrain = createTerrainMesh(w3e);
+  // Done! No manual transformation needed
+}
+```
+
+### Migration Steps
+
+1. **Install babylon-anyup:**
+```bash
+npm install @dcversus/babylon-anyup
+```
+
+2. **Remove manual transforms:**
+   - Delete all Y↔Z swapping code
+   - Remove hardcoded rotations (e.g., `mesh.rotation.x = -Math.PI / 2`)
+   - Remove position/scale coordinate conversions
+
+3. **Add plugin initialization:**
+```typescript
+import { AnyUpPlugin } from '@dcversus/babylon-anyup';
+
+const plugin = new AnyUpPlugin({
+  sourceSystem: 'z-up',  // Your source data format
+  targetSystem: 'y-up',  // Babylon.js format
+  autoConvert: true,     // Convert everything automatically
+  preserveOriginal: false,
+});
+
+plugin.initialize(scene);
+```
+
+4. **Test thoroughly:**
+   - Verify meshes are positioned correctly
+   - Check rotations are correct
+   - Validate scaling matches expectations
+   - Test camera controls feel natural
+
+5. **Clean up (optional):**
+   - Remove helper functions for coordinate conversion
+   - Simplify data loading code
+   - Update comments/documentation
+
+### Common Issues During Migration
+
+**Issue:** Meshes are upside down or rotated incorrectly
+- **Solution:** Ensure you're using correct `sourceSystem` and `targetSystem`
+- **Tip:** Try swapping them if objects appear inverted
+
+**Issue:** Some meshes convert, others don't
+- **Solution:** Use `autoConvert: true` or manually call `plugin.convertMesh()` for each mesh
+- **Tip:** Check if meshes were added before `plugin.initialize()`
+
+**Issue:** Transformations are applied twice
+- **Solution:** Remove manual coordinate conversions from your code
+- **Tip:** Search codebase for Y/Z swaps, hardcoded rotations
+
+## Contributing
+
+Want to contribute? See [CONTRIBUTING.md](./CONTRIBUTING.md) for development workflow, quality standards, and PR guidelines
 
 ## Performance Benchmarks
 
@@ -199,10 +488,6 @@ Ensure you're using `preserveOriginal: true` to store original transforms in met
 ### Plugin not working with imported models
 
 Some model loaders apply their own transformations. Initialize the plugin before loading models, or manually convert after import completes.
-
-## Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for development workflow and PRP process.
 
 ## License
 

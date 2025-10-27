@@ -62,25 +62,64 @@ Task(aqa-engineer): "Define quality gates and test strategy for {feature}"
 
 ### THE THREE-FILE RULE (MANDATORY)
 
-**ONLY 3 types of documentation allowed:**
+**⚠️ AI AGENTS: READ THIS CAREFULLY ⚠️**
 
-1. **`AGENTS.md`** - This file (AI development guidelines, workflow rules)
-2. **`README.md`** - Project overview, installation, usage examples
-3. **`PRPs/`** - Phase Requirement Proposals (ONLY format for requirements)
+**ONLY 3 types of documentation files are allowed in this repository:**
 
-**FORBIDDEN:**
-- ❌ No `docs/` directory
-- ❌ No scattered `.md` files (`ARCHITECTURE.md`, `PLAN.md`, etc.)
-- ❌ No "summary" or "index" files outside PRPs/
-- ❌ No duplicate documentation
+1. **`README.md`** - For USERS (installation, API reference, usage examples, migration guide)
+2. **`CONTRIBUTING.md`** - For DEVELOPERS (development workflow, testing, quality standards)
+3. **`PRPs/`** - For PLANNING (requirements, implementation breakdown, progress tracking)
+
+**EXCEPTIONS (allowed by standard conventions):**
+- `SECURITY.md` - Vulnerability reporting (security standard)
+- `CODE_OF_CONDUCT.md` - Community guidelines (open source standard)
+- `CHANGELOG.md` - Version history (release standard)
+- `LICENSE` - Legal terms (required)
+- `AGENTS.md` (this file) - AI development guidelines
+
+**❌ ABSOLUTELY FORBIDDEN - DELETE ON SIGHT:**
+- `API.md` - API docs belong in README.md
+- `MIGRATION.md` - Migration guide belongs in README.md
+- `ARCHITECTURE.md` - Architecture belongs in PRPs/ or CONTRIBUTING.md
+- `PLAN.md` - Planning belongs in PRPs/
+- `DESIGN.md` - Design belongs in PRPs/
+- `ROADMAP.md` - Roadmap belongs in README.md
+- `EXAMPLES.md` - Examples belong in README.md or examples/ folder
+- `docs/` directory - Not allowed, use README.md
+- `guides/` directory - Not allowed, use README.md
+- Any other `.md` file not explicitly listed above
+
+**Content Placement Rules:**
+
+| Content Type | Belongs In | Examples |
+|--------------|-----------|----------|
+| API reference | README.md | Class methods, interfaces, types |
+| Usage examples | README.md | Code snippets, tutorials |
+| Migration guides | README.md | Upgrade instructions |
+| Installation | README.md | npm install, setup |
+| Development setup | CONTRIBUTING.md | Fork, clone, build |
+| Testing guidelines | CONTRIBUTING.md | Test structure, coverage |
+| PR workflow | CONTRIBUTING.md | Branch naming, commits |
+| Release process | CONTRIBUTING.md | Versioning, publishing |
+| Feature planning | PRPs/{feature}.md | DoR, DoD, implementation |
+| Architecture decisions | PRPs/{feature}.md | Technical design |
+| Progress tracking | PRPs/{feature}.md | Timeline, blockers |
 
 **Why this rule exists:**
-- Single source of truth → No conflicting docs
-- Executable requirements → PRP = implementation plan
-- Prevents documentation drift → Update PRP or it doesn't exist
+- Single source of truth → Users know: README.md for usage, CONTRIBUTING.md for development
+- Prevents documentation drift → Update README/CONTRIBUTING or it doesn't exist
 - Forces clarity → Can't hide ambiguity in scattered docs
+- Search efficiency → Ctrl+F in 2 files instead of 20
 
-**IF IT'S NOT IN A PRP, IT DOESN'T EXIST.**
+**IF IT'S NOT IN README.md, CONTRIBUTING.md, OR PRPs/, IT DOESN'T EXIST.**
+
+### Enforcement
+
+**Before creating ANY new .md file, ask yourself:**
+1. Is this for users? → Add to README.md
+2. Is this for contributors? → Add to CONTRIBUTING.md
+3. Is this for planning/tracking? → Create/update PRP in PRPs/
+4. If none of the above → **DON'T CREATE IT**
 
 ---
 
