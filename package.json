@@ -1,0 +1,73 @@
+{
+  "name": "@dcversus/babylon-anyup",
+  "version": "0.1.0",
+  "description": "Babylon.js plugin for Z-up coordinate system compatibility with automatic transforms",
+  "keywords": [
+    "babylonjs",
+    "babylon",
+    "coordinate-system",
+    "z-up",
+    "y-up",
+    "3d",
+    "webgl",
+    "plugin"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts --max-warnings 0",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "validate": "npm run typecheck && npm run lint && npm run test",
+    "prepublishOnly": "npm run validate && npm run build"
+  },
+  "peerDependencies": {
+    "@babylonjs/core": "^7.0.0"
+  },
+  "devDependencies": {
+    "@babylonjs/core": "^7.0.0",
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitest/coverage-v8": "^1.0.4",
+    "eslint": "^8.55.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dcversus/babylon-anyup.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dcversus/babylon-anyup/issues"
+  },
+  "homepage": "https://github.com/dcversus/babylon-anyup#readme",
+  "author": {
+    "name": "Vasilisa Versus",
+    "email": "dcversus@gmail.com",
+    "url": "https://t.me/dcversus"
+  },
+  "license": "AGPL-3.0"
+}

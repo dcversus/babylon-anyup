@@ -1,0 +1,174 @@
+name: 🐛 Bug Report
+description: Report a defect in babylon-anyup plugin behavior
+title: "[BUG] "
+labels:
+  - bug
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve babylon-anyup!
+
+        Before filing, please:
+        - Update to the latest version and reinstall dependencies
+        - Search [open issues](https://github.com/dcversus/babylon-anyup/issues?q=is%3Aissue+is%3Aopen+label%3Abug) to avoid duplicates
+        - Provide a minimal reproducible example
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Preflight Checklist
+      options:
+        - label: I searched existing babylon-anyup issues and discussions
+          required: true
+        - label: I reproduced this bug on the latest version
+          required: true
+        - label: I captured a minimal reproduction (code snippet or repository)
+          required: true
+        - label: This is not a support question or feature request
+          required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What broke?
+      description: Describe the unexpected behavior in one or two sentences.
+      placeholder: Coordinate conversion fails when applying transforms to instanced meshes.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include exact code snippets or link to a minimal reproduction repository.
+      placeholder: |
+        1. Install babylon-anyup@0.1.0 and @babylonjs/core@7.0.0
+        2. Initialize plugin with sourceSystem: 'z-up'
+        3. Create instanced mesh with 100 instances
+        4. Apply coordinate conversion
+        5. Observe incorrect world matrix transformations
+      value: |
+        ```typescript
+        import { AnyUpPlugin } from '@dcversus/babylon-anyup';
+        import { Engine, Scene, Mesh } from '@babylonjs/core';
+
+        const plugin = new AnyUpPlugin({
+          sourceSystem: 'z-up',
+          targetSystem: 'y-up',
+        });
+
+        // Your reproduction code here
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: What should happen instead?
+      placeholder: Instanced meshes should maintain correct world positions after coordinate conversion.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: Paste error messages, stack traces, or screenshots. This field is rendered as code.
+      render: shell
+      placeholder: |
+        TypeError: Cannot read property 'copyFrom' of undefined
+            at AnyUpPlugin._convertInstances (babylon-anyup/dist/index.js:142)
+            at AnyUpPlugin.applyToScene (babylon-anyup/dist/index.js:89)
+    validations:
+      required: true
+
+  - type: textarea
+    id: regression_notes
+    attributes:
+      label: Regression context
+      description: If this previously worked, list the last known good version.
+      placeholder: Worked in 0.0.9, broken since 0.1.0
+
+  - type: input
+    id: babylon_anyup_version
+    attributes:
+      label: babylon-anyup version
+      description: Run `npm list @dcversus/babylon-anyup` to get the exact version.
+      placeholder: 0.1.0
+    validations:
+      required: true
+
+  - type: input
+    id: babylonjs_version
+    attributes:
+      label: "@babylonjs/core version"
+      description: Run `npm list @babylonjs/core` to get the exact version.
+      placeholder: 7.0.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: Runtime environment
+      description: Where does the bug manifest?
+      options:
+        - Browser (Chrome/Edge/Brave)
+        - Browser (Firefox)
+        - Browser (Safari)
+        - Node.js
+        - Automated tests (vitest)
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: operating_system
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Windows
+        - Ubuntu/Debian Linux
+        - Other Linux
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: node_version
+    attributes:
+      label: Node.js version
+      description: Run `node --version` (if applicable)
+      placeholder: v20.10.0
+
+  - type: input
+    id: typescript_version
+    attributes:
+      label: TypeScript version
+      description: Run `npm list typescript` (if applicable)
+      placeholder: 5.3.3
+
+  - type: input
+    id: bundler
+    attributes:
+      label: Bundler (if applicable)
+      description: Which bundler are you using?
+      placeholder: vite 5.0.0, webpack 5.89.0, rollup 4.0.0, etc.
+
+  - type: textarea
+    id: extras
+    attributes:
+      label: Additional context
+      description: Link related issues, attach small code snippets, or provide workarounds.
+
+  - type: checkboxes
+    id: breaking_change
+    attributes:
+      label: Is this a regression (breaking change)?
+      options:
+        - label: This is a regression from a previous working version

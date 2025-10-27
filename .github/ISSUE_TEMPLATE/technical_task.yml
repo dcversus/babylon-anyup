@@ -1,0 +1,122 @@
+name: 🧱 Technical Task
+description: Track refactors, automation changes, or infrastructure work
+title: "[TASK] "
+labels:
+  - chore
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for infrastructure, automation, or refactor work that does not directly surface as a user-facing feature.
+
+        Examples:
+        - Upgrade dependencies
+        - Refactor internal code structure
+        - Improve CI/CD pipeline
+        - Add performance benchmarks
+        - Update documentation infrastructure
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Task summary
+      description: Describe the work in one or two sentences.
+      placeholder: Migrate from tsup to unbuild for better ESM/CJS dual-package support.
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Explain why this task is necessary. Reference metrics, incidents, or issues.
+      placeholder: |
+        **Problem**: Current tsup build produces CJS imports that fail in strict ESM environments.
+        **Evidence**: Issue #42 reports `ERR_REQUIRE_ESM` errors in Vite projects.
+        **Impact**: ~15% of users affected (based on issue reports).
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope & deliverables
+      description: List the concrete outputs (files, workflows, scripts) expected from this task.
+      placeholder: |
+        - [ ] Replace tsup with unbuild in package.json
+        - [ ] Update build scripts and configuration
+        - [ ] Verify dual-package exports work in CJS + ESM
+        - [ ] Update CI/CD to test both module systems
+        - [ ] Update CONTRIBUTING.md with new build instructions
+        - [ ] Document migration in CHANGELOG.md
+    validations:
+      required: true
+
+  - type: textarea
+    id: testing
+    attributes:
+      label: Validation plan
+      description: How will we verify this change? List tests, dry-runs, or CI jobs to run.
+      placeholder: |
+        - Unit tests pass in both CJS and ESM environments
+        - CI matrix tests Node 18.x/20.x/22.x with CJS + ESM imports
+        - Manual smoke test in Vite + webpack + Rollup projects
+        - Bundle size regression check (<5% increase)
+        - Performance benchmark (no degradation)
+
+  - type: textarea
+    id: breaking_changes
+    attributes:
+      label: Breaking changes
+      description: Will this task introduce breaking changes for users?
+      placeholder: |
+        **Backward compatibility**: Fully backward compatible.
+        - Output format unchanged (CJS + ESM + types)
+        - No API changes
+        - Build process only (internal change)
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks & mitigation
+      description: Note potential regressions or operational overhead.
+      placeholder: |
+        **Risk 1**: Unbuild may produce subtly different output
+        - *Mitigation*: Comprehensive test suite + manual verification
+
+        **Risk 2**: CI/CD may break during transition
+        - *Mitigation*: Test in separate branch first
+
+        **Risk 3**: Bundle size may increase
+        - *Mitigation*: Add bundle size regression check to CI
+
+  - type: textarea
+    id: timeline
+    attributes:
+      label: Estimated timeline
+      description: Rough estimate of effort required.
+      placeholder: |
+        - Research & setup: 2 hours
+        - Implementation: 4 hours
+        - Testing & validation: 2 hours
+        - Total: ~1 day
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: List prerequisite work or external approvals.
+      placeholder: |
+        - None (self-contained change)
+        - OR: Requires approval from maintainer before starting
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Link related issues, PRs, documentation, or research.
+      placeholder: |
+        - Related issue: #42 (ESM import errors)
+        - unbuild docs: https://github.com/unjs/unbuild
+        - Dual-package guide: https://nodejs.org/api/packages.html#dual-commonjses-module-packages

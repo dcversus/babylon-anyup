@@ -1,0 +1,69 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to review'
+        required: true
+        type: number
+
+jobs:
+  claude-review:
+    # Optional: Filter by PR author
+    # if: |
+    #   github.event.pull_request.user.login == 'external-contributor' ||
+    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code Review
+        id: claude-review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+
+            Please review this pull request for babylon-anyup (a Babylon.js coordinate system plugin) and provide feedback on:
+
+            **Library-Specific Concerns:**
+            - Public API design and backward compatibility
+            - TypeScript type safety and exported types
+            - Package exports (CJS/ESM dual-package correctness)
+            - Peer dependency compatibility with @babylonjs/core
+            - Bundle size impact
+
+            **Code Quality:**
+            - Code patterns and best practices
+            - Potential bugs or edge cases
+            - Performance considerations
+            - Test coverage (target: 80%+)
+            - Self-documenting code (minimal comments)
+
+            **Breaking Changes:**
+            - Flag any breaking changes to the public API
+            - Suggest migration strategies if needed
+            - Verify SemVer version bump is appropriate
+
+            Use the repository's AGENTS.md for guidance on style and conventions. Be constructive and helpful in your feedback.
+
+            Use `gh pr comment` with your Bash tool to leave your review as a comment on the PR.
+
+          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
+          # or https://docs.claude.com/en/docs/claude-code/cli-reference for available options
+          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'

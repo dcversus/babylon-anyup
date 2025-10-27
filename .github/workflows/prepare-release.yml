@@ -1,0 +1,128 @@
+name: Prepare Release with Claude
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.1.0 or patch/minor/major)'
+        required: true
+        type: string
+        default: 'patch'
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run validation
+        run: npm run validate
+
+      - name: Determine new version
+        id: version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          INPUT_VERSION="${{ github.event.inputs.version }}"
+
+          if [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            NEW_VERSION="$INPUT_VERSION"
+          else
+            npm version "$INPUT_VERSION" --no-git-tag-version
+            NEW_VERSION=$(node -p "require('./package.json').version")
+            git checkout package.json package-lock.json
+          fi
+
+          echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+          echo "New version: $NEW_VERSION"
+
+      - name: Generate CHANGELOG with Claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            TASK: Update CHANGELOG.md for version ${{ steps.version.outputs.new }}
+
+            Current version: ${{ steps.version.outputs.current }}
+            New version: ${{ steps.version.outputs.new }}
+
+            INSTRUCTIONS:
+            1. Read the current CHANGELOG.md file
+            2. Get git commits since the last tag using: git log v${{ steps.version.outputs.current }}..HEAD --oneline --no-merges
+            3. Analyze commits and categorize them into:
+               - Added: New features
+               - Changed: Changes to existing functionality
+               - Fixed: Bug fixes
+               - Deprecated: Soon-to-be removed features
+               - Removed: Removed features
+               - Security: Security fixes
+            4. Create a new CHANGELOG entry following Keep a Changelog format:
+
+            ## [${{ steps.version.outputs.new }}] - $(date +%Y-%m-%d)
+
+            ### Added
+            - Feature descriptions (not just commit messages)
+
+            ### Changed
+            - ...
+
+            ### Fixed
+            - ...
+
+            5. Insert this entry at the top of CHANGELOG.md (after the ## [Unreleased] section if it exists)
+            6. Use the Edit tool to update CHANGELOG.md
+            7. DO NOT commit or push - just update the file
+
+            Be concise but descriptive. Focus on user-facing changes, not internal refactoring.
+            Follow the existing CHANGELOG.md style and format exactly.
+
+          claude_args: '--allowed-tools "Read,Edit,Bash(git log:*),Bash(git diff:*),Bash(date:*)"'
+
+      - name: Update package.json version
+        run: npm version ${{ steps.version.outputs.new }} --no-git-tag-version
+
+      - name: Commit changes
+        run: |
+          git add CHANGELOG.md package.json package-lock.json
+          git commit -m "chore(release): prepare v${{ steps.version.outputs.new }}"
+          git push
+
+      - name: Create and push tag
+        run: |
+          git tag -a "v${{ steps.version.outputs.new }}" -m "Release v${{ steps.version.outputs.new }}"
+          git push origin "v${{ steps.version.outputs.new }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.new }}
+          name: Release v${{ steps.version.outputs.new }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

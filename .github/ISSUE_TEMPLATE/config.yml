@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/dcversus/babylon-anyup#readme
+    about: Learn about API usage, configuration options, and examples
+  - name: 🧠 AI Contributor Workflow
+    url: https://github.com/dcversus/babylon-anyup/blob/main/AGENTS.md
+    about: Guidelines for AI-assisted development and code review
+  - name: 🤝 Contributing Guide
+    url: https://github.com/dcversus/babylon-anyup/blob/main/CONTRIBUTING.md
+    about: Learn how to contribute code, report issues, and submit PRs
+  - name: 💬 Babylon.js Forum
+    url: https://forum.babylonjs.com/
+    about: Get community help with general Babylon.js questions

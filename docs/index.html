@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Babylon.js plugin for seamless Z-up to Y-up coordinate system conversion with automatic transforms">
+    <title>babylon-anyup - Make Babylon.js Z-up aware</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">
+                    <span class="logo-icon">🔄</span>
+                    babylon-anyup
+                </h1>
+                <nav class="nav">
+                    <a href="#demo" class="nav-link">Demo</a>
+                    <a href="#problem" class="nav-link">Problem</a>
+                    <a href="#installation" class="nav-link">Installation</a>
+                    <a href="#features" class="nav-link">Features</a>
+                    <a href="https://github.com/dcversus/babylon-anyup" class="nav-link" target="_blank">GitHub</a>
+                    <a href="https://www.npmjs.com/package/@dcversus/babylon-anyup" class="nav-link" target="_blank">npm</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2 class="hero-title">Make Babylon.js Z-up aware</h2>
+                <p class="hero-subtitle">
+                    Seamless coordinate system conversion for Blizzard game formats and Z-up workflows
+                </p>
+                <div class="hero-buttons">
+                    <a href="#installation" class="btn btn-primary">Get Started</a>
+                    <a href="#demo" class="btn btn-secondary">See Demo</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-value">&lt;10KB</span>
+                        <span class="stat-label">Minified</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">Zero</span>
+                        <span class="stat-label">Dependencies</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">TypeScript</span>
+                        <span class="stat-label">First</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="demo" class="demo-section">
+        <div class="container">
+            <h2 class="section-title">See It In Action</h2>
+            <p class="section-subtitle">Compare Y-up (Babylon.js default) vs Z-up (with babylon-anyup)</p>
+
+            <div class="demo-container">
+                <div class="demo-panel">
+                    <div class="demo-label">
+                        <span class="demo-label-text">Y-up (Babylon.js Default)</span>
+                        <span class="demo-label-badge">Without Plugin</span>
+                    </div>
+                    <canvas id="yup-canvas" class="demo-canvas"></canvas>
+                    <div class="demo-info">
+                        <p>Standard Babylon.js scene. Loading Blizzard terrain data (Z-up) requires manual coordinate conversion.</p>
+                    </div>
+                </div>
+
+                <div class="demo-panel">
+                    <div class="demo-label">
+                        <span class="demo-label-text">Z-up (With babylon-anyup)</span>
+                        <span class="demo-label-badge demo-label-badge-success">With Plugin</span>
+                    </div>
+                    <canvas id="zup-canvas" class="demo-canvas"></canvas>
+                    <div class="demo-info">
+                        <p>Same scene with babylon-anyup. Blizzard terrain data loads correctly without any manual conversion.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-controls">
+                <button id="rotate-btn" class="btn btn-small">Rotate Scenes</button>
+                <div class="demo-legend">
+                    <div class="legend-item">
+                        <span class="legend-color legend-x"></span>
+                        <span>X Axis (Red)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color legend-y"></span>
+                        <span>Y Axis (Green)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color legend-z"></span>
+                        <span>Z Axis (Blue)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="problem" class="problem-section">
+        <div class="container">
+            <h2 class="section-title">The Problem</h2>
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <div class="problem-icon">⚠️</div>
+                    <h3>Coordinate System Mismatch</h3>
+                    <p>Blizzard games (Warcraft 3, StarCraft 2) use <strong>Z-up coordinates</strong>. Babylon.js uses <strong>Y-up coordinates</strong>. This means every vertex, model, and camera needs manual transformation.</p>
+                </div>
+
+                <div class="problem-card">
+                    <div class="problem-icon">🔧</div>
+                    <h3>Error-Prone Manual Conversion</h3>
+                    <p>Without babylon-anyup, codebases get littered with hundreds of lines of coordinate conversion math. Rotating models by -90°, swapping axes, inverting signs - a maintenance nightmare.</p>
+                </div>
+
+                <div class="problem-card">
+                    <div class="problem-icon">✨</div>
+                    <h3>Born from Real Pain</h3>
+                    <p>This library was built while developing <a href="https://github.com/dcversus/edgecraft" target="_blank">Edge Craft</a> - a WebGL RTS engine for porting Blizzard maps to the web. We solved it once and for all.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="installation" class="install-section">
+        <div class="container">
+            <h2 class="section-title">Installation</h2>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>Terminal</span>
+                    <button class="copy-btn" data-target="install-code">Copy</button>
+                </div>
+                <pre><code id="install-code" class="language-bash">npm install @dcversus/babylon-anyup</code></pre>
+            </div>
+
+            <h3 class="subsection-title">Quick Start</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>TypeScript</span>
+                    <button class="copy-btn" data-target="quickstart-code">Copy</button>
+                </div>
+                <pre><code id="quickstart-code" class="language-typescript">import { Engine, Scene, MeshBuilder } from '@babylonjs/core';
+import { AnyUpPlugin } from '@dcversus/babylon-anyup';
+
+const scene = new Scene(engine);
+
+// Initialize the plugin
+const plugin = new AnyUpPlugin({
+  sourceSystem: 'z-up',
+  targetSystem: 'y-up',
+  autoConvert: true,
+  preserveOriginal: true,
+});
+
+plugin.initialize(scene);
+
+// All meshes are automatically converted
+const mesh = MeshBuilder.CreateBox('box', { size: 2 }, scene);</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features-section">
+        <div class="container">
+            <h2 class="section-title">Features</h2>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Automatic Conversion</h3>
+                    <p>Seamlessly convert between Z-up and Y-up coordinate systems without manual calculations</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Position, Rotation, Scaling</h3>
+                    <p>Complete transformation support for all mesh properties and transform nodes</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <h3>Preserve Original</h3>
+                    <p>Optional preservation of original transforms for debugging and analysis</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📘</div>
+                    <h3>Type-Safe</h3>
+                    <p>Full TypeScript support with strict typing and zero any types</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🪶</div>
+                    <h3>Zero Dependencies</h3>
+                    <p>Lightweight library with no dependencies (peer: @babylonjs/core only)</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Performance First</h3>
+                    <p>Optimized transformations with minimal overhead (&lt;10KB minified)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">Ready to simplify your Z-up workflow?</h2>
+                <p class="cta-subtitle">Get started in seconds with npm</p>
+                <div class="cta-buttons">
+                    <a href="https://github.com/dcversus/babylon-anyup" class="btn btn-primary" target="_blank">
+                        View on GitHub
+                    </a>
+                    <a href="https://www.npmjs.com/package/@dcversus/babylon-anyup" class="btn btn-secondary" target="_blank">
+                        View on npm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>babylon-anyup</h4>
+                    <p>Make Babylon.js Z-up aware</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://github.com/dcversus/babylon-anyup">GitHub</a></li>
+                        <li><a href="https://www.npmjs.com/package/@dcversus/babylon-anyup">npm</a></li>
+                        <li><a href="https://github.com/dcversus/babylon-anyup/issues">Issues</a></li>
+                        <li><a href="https://github.com/dcversus/babylon-anyup/discussions">Discussions</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Related</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://github.com/dcversus/edgecraft">Edge Craft</a></li>
+                        <li><a href="https://www.babylonjs.com/">Babylon.js</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>About</h4>
+                    <p>Built with ❤️ for the Babylon.js and RTS modding community</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>MIT License © 2025 dcversus</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="demo.js"></script>
+    <script>
+        hljs.highlightAll();
+
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-target');
+                const code = document.getElementById(targetId).textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    btn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        btn.textContent = 'Copy';
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

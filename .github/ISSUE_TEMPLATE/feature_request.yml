@@ -1,0 +1,139 @@
+name: 🌟 Feature Proposal
+description: Suggest a new capability for babylon-anyup
+title: "[FEATURE] "
+labels:
+  - enhancement
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for improving babylon-anyup!
+
+        Feature requests should:
+        - Solve a clear user problem
+        - Define measurable success criteria
+        - Consider backward compatibility
+
+  - type: checkboxes
+    id: alignment
+    attributes:
+      label: Alignment Checklist
+      options:
+        - label: I reviewed existing issues and confirmed this is not already planned
+          required: true
+        - label: I documented the user problem and success criteria below
+          required: true
+        - label: I am willing to help refine or implement this feature
+          required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature summary
+      description: Concise description of the capability you need.
+      placeholder: Add support for custom coordinate system definitions beyond standard Y-up/Z-up.
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+      description: What problem does this feature solve? Who benefits?
+      placeholder: |
+        **Problem**: Some 3D authoring tools use non-standard coordinate systems (e.g., X-up for CAD).
+        **Impact**: Users cannot use babylon-anyup with these tools without manual transformation code.
+        **Audience**: Game developers importing CAD models, architectural visualization teams.
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_cases
+    attributes:
+      label: Use cases
+      description: Provide 2-3 concrete scenarios where this feature would be used.
+      placeholder: |
+        1. Importing CAD models from Rhino (X-up) into Babylon.js (Y-up)
+        2. Converting legacy assets from custom coordinate systems
+        3. Supporting multi-engine pipelines (Unity → Babylon.js → Unreal)
+
+  - type: textarea
+    id: success_criteria
+    attributes:
+      label: Success criteria
+      description: How will we know this feature is complete? List measurable outcomes.
+      placeholder: |
+        - Users can define custom coordinate systems via `{ upAxis: 'x', forwardAxis: 'z', handedness: 'right' }`
+        - Plugin correctly converts between any two custom coordinate systems
+        - TypeScript types enforce valid axis configurations
+        - Documentation includes examples for common CAD tools
+        - Performance remains within 5% of standard Y-up/Z-up conversions
+    validations:
+      required: true
+
+  - type: textarea
+    id: api_design
+    attributes:
+      label: Proposed API (optional)
+      description: Sketch how this feature would be used (TypeScript code).
+      placeholder: |
+        ```typescript
+        const plugin = new AnyUpPlugin({
+          sourceSystem: {
+            upAxis: 'x',
+            forwardAxis: 'z',
+            handedness: 'right'
+          },
+          targetSystem: 'y-up', // or another custom definition
+        });
+        ```
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other approaches could solve this problem?
+      placeholder: |
+        1. Manual matrix transformations (current workaround, error-prone)
+        2. Separate plugin for each coordinate system (maintenance burden)
+        3. External preprocessing tool (breaks live workflow)
+
+  - type: textarea
+    id: breaking_changes
+    attributes:
+      label: Breaking changes
+      description: Would this feature require breaking changes to the API?
+      placeholder: |
+        **Backward compatibility**: Fully backward compatible.
+        - Existing `sourceSystem: 'z-up'` strings remain supported
+        - New object syntax is opt-in
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies & blockers
+      description: List prerequisite work, external libraries, or approvals needed.
+      placeholder: |
+        - Requires comprehensive test suite for all axis combinations
+        - May need Babylon.js core team input on coordinate system assumptions
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks & tradeoffs
+      description: Note performance, complexity, or maintenance concerns.
+      placeholder: |
+        **Complexity**: Adds ~200 lines to core conversion logic
+        **Performance**: Negligible (one-time matrix computation)
+        **Maintenance**: Requires extensive test matrix (6+ coordinate systems)
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Link demos, research papers, forum threads, or related issues.
+      placeholder: |
+        - [Babylon.js Forum Discussion](https://forum.babylonjs.com/...)
+        - [Three.js Coordinate System Docs](https://threejs.org/docs/#manual/en/introduction/Coordinate-systems)
+        - Related issue: #42

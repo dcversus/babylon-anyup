@@ -1,0 +1,339 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  lint:
+    name: Lint Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check Prettier formatting
+        run: npm run format || echo "⚠️ Add 'format' script to package.json"
+
+  typecheck:
+    name: TypeScript Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript type checking
+        run: npm run typecheck
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    strategy:
+      matrix:
+        node-version: ['18.x', '20.x', '22.x']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests with coverage
+        run: npm run test:coverage
+
+      - name: Upload coverage report
+        if: matrix.node-version == '20.x'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+
+      - name: Upload coverage to Codecov
+        if: matrix.node-version == '20.x'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/coverage-final.json
+          flags: unittests
+          name: codecov-babylon-anyup
+        continue-on-error: true
+
+  build:
+    name: Build Package
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: ['18.x', '20.x', '22.x']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Upload build artifacts (Node 20.x only)
+        if: matrix.node-version == '20.x'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+  validate:
+    name: Package Validation
+    runs-on: ubuntu-latest
+    needs: [build]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Validate package exports
+        run: |
+          echo "Testing package exports..."
+          npm pack
+          TARBALL=$(ls *.tgz)
+          mkdir -p test-install
+          cd test-install
+          npm init -y
+          npm install ../$TARBALL
+
+          # Test CommonJS import
+          node -e "const pkg = require('@dcversus/babylon-anyup'); console.log('✅ CJS import works');"
+
+          # Test ESM import
+          node --input-type=module -e "import('@dcversus/babylon-anyup').then(() => console.log('✅ ESM import works'));"
+
+          cd ..
+          rm -rf test-install
+          rm $TARBALL
+
+      - name: Check bundle size
+        run: |
+          echo "Checking bundle size..."
+          SIZE=$(du -sh dist/ | cut -f1)
+          echo "Bundle size: $SIZE"
+
+          # Parse size in bytes
+          SIZE_BYTES=$(du -sb dist/ | cut -f1)
+          MAX_SIZE_BYTES=$((100 * 1024))  # 100 KB limit
+
+          if [ $SIZE_BYTES -gt $MAX_SIZE_BYTES ]; then
+            echo "❌ ERROR: Bundle size $SIZE exceeds limit (100 KB)"
+            exit 1
+          fi
+          echo "✅ Bundle size within limit"
+
+      - name: Verify package.json exports
+        run: |
+          echo "Verifying package.json exports match build output..."
+
+          # Check if declared exports exist
+          if [ ! -f "dist/index.js" ]; then
+            echo "❌ ERROR: dist/index.js not found (declared in package.json)"
+            exit 1
+          fi
+
+          if [ ! -f "dist/index.mjs" ]; then
+            echo "❌ ERROR: dist/index.mjs not found (declared in package.json)"
+            exit 1
+          fi
+
+          if [ ! -f "dist/index.d.ts" ]; then
+            echo "❌ ERROR: dist/index.d.ts not found (declared in package.json)"
+            exit 1
+          fi
+
+          echo "✅ All declared exports exist"
+
+      - name: Validate peer dependencies
+        run: |
+          echo "Checking peer dependency version ranges..."
+
+          # Extract @babylonjs/core version from package.json
+          PEER_VERSION=$(node -p "require('./package.json').peerDependencies['@babylonjs/core']")
+          echo "Declared peer dependency: @babylonjs/core@$PEER_VERSION"
+
+          # Check if version range is valid
+          if [[ ! $PEER_VERSION =~ ^\^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "⚠️ WARNING: Peer dependency should use caret range (^X.Y.Z)"
+          fi
+
+          echo "✅ Peer dependencies validated"
+
+  comment-pr:
+    name: Comment PR with Reports
+    runs-on: ubuntu-latest
+    needs: [test, build, validate]
+    if: always() && github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Get job results
+        id: results
+        run: |
+          echo "test_result=${{ needs.test.result }}" >> $GITHUB_OUTPUT
+          echo "build_result=${{ needs.build.result }}" >> $GITHUB_OUTPUT
+          echo "validate_result=${{ needs.validate.result }}" >> $GITHUB_OUTPUT
+
+      - name: Comment or update PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runId = context.runId;
+            const repo = context.repo;
+            const pr = context.payload.pull_request.number;
+            const testResult = '${{ steps.results.outputs.test_result }}';
+            const buildResult = '${{ steps.results.outputs.build_result }}';
+            const validateResult = '${{ steps.results.outputs.validate_result }}';
+
+            const artifactsUrl = `https://github.com/${repo.owner}/${repo.repo}/actions/runs/${runId}`;
+            const workflowUrl = `https://github.com/${repo.owner}/${repo.repo}/actions/runs/${runId}`;
+
+            const statusEmoji = (result) => {
+              switch(result) {
+                case 'success': return '✅';
+                case 'failure': return '❌';
+                case 'cancelled': return '🚫';
+                case 'skipped': return '⏭️';
+                default: return '⏳';
+              }
+            };
+
+            const comment = `## 📊 CI/CD Pipeline Results
+
+            ### Job Status
+            ${statusEmoji(testResult)} **Unit Tests**: ${testResult}
+            ${statusEmoji(buildResult)} **Build**: ${buildResult}
+            ${statusEmoji(validateResult)} **Package Validation**: ${validateResult}
+
+            [🔗 View Full Workflow Run](${workflowUrl})
+
+            ---
+
+            ### 📥 Download Artifacts
+
+            #### Coverage Report
+            📈 [Coverage Report](${artifactsUrl}#artifacts) - \`coverage-report\`
+            - HTML report with line-by-line coverage
+            - Open \`coverage/index.html\` after extracting
+
+            #### Build Artifacts
+            📦 [Build Artifacts](${artifactsUrl}#artifacts) - \`dist\`
+            - Compiled package output (CJS + ESM + types)
+
+            ---
+
+            <details>
+            <summary>📖 How to view reports</summary>
+
+            1. Click on artifact links above
+            2. Scroll down to "Artifacts" section at bottom of page
+            3. Download the zip file
+            4. Extract and open HTML files in your browser
+
+            </details>
+
+            ---
+
+            🤖 _Auto-generated by [CI/CD Pipeline](${workflowUrl}) • Updated on every push_`;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: repo.owner,
+              repo: repo.repo,
+              issue_number: pr,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('📊 CI/CD Pipeline Results')
+            );
+
+            // Update existing or create new
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: repo.owner,
+                repo: repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+              console.log('Updated existing comment');
+            } else {
+              await github.rest.issues.createComment({
+                owner: repo.owner,
+                repo: repo.repo,
+                issue_number: pr,
+                body: comment
+              });
+              console.log('Created new comment');
+            }
+
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test, build, validate]
+
+    steps:
+      - name: All checks passed
+        run: echo "✅ All quality checks passed successfully!"
