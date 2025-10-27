@@ -1,7 +1,7 @@
 # babylon-anyup
 
 [![npm version](https://img.shields.io/npm/v/@dcversus/babylon-anyup.svg)](https://www.npmjs.com/package/@dcversus/babylon-anyup)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/dcversus/babylon-anyup/ci.yml?branch=main)](https://github.com/dcversus/babylon-anyup/actions)
 [![Coverage](https://img.shields.io/codecov/c/github/dcversus/babylon-anyup)](https://codecov.io/gh/dcversus/babylon-anyup)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/@dcversus/babylon-anyup)](https://bundlephobia.com/package/@dcversus/babylon-anyup)
