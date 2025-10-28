@@ -1,11 +1,12 @@
-import type { CoordinateSystem, ITransformStrategy } from '../types/index.js';
+import type { CoordinateSystem, ITransformStrategy, Handedness } from '../types/index.js';
 import { ZUpToYUpStrategy } from './ZUpToYUpStrategy.js';
 import { YUpToZUpStrategy } from './YUpToZUpStrategy.js';
 
 export class TransformStrategyFactory {
   static createStrategy(
     source: CoordinateSystem,
-    target: CoordinateSystem
+    target: CoordinateSystem,
+    handedness: Handedness = 'left-handed'
   ): ITransformStrategy {
     if (source === target) {
       throw new Error(
@@ -14,11 +15,11 @@ export class TransformStrategyFactory {
     }
 
     if (source === 'z-up' && target === 'y-up') {
-      return new ZUpToYUpStrategy();
+      return new ZUpToYUpStrategy(handedness);
     }
 
     if (source === 'y-up' && target === 'z-up') {
-      return new YUpToZUpStrategy();
+      return new YUpToZUpStrategy(handedness);
     }
 
     throw new Error(

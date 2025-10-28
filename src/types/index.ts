@@ -1,12 +1,14 @@
 import type { Scene, AbstractMesh, TransformNode, Vector3, Quaternion } from '@babylonjs/core';
 
 export type CoordinateSystem = 'y-up' | 'z-up';
+export type Handedness = 'left-handed' | 'right-handed';
 
 export interface AnyUpPluginOptions {
   sourceSystem: CoordinateSystem;
   targetSystem: CoordinateSystem;
   autoConvert: boolean;
   preserveOriginal: boolean;
+  handedness?: Handedness;
 }
 
 export interface TransformResult {

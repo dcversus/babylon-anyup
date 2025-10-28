@@ -105,8 +105,11 @@ Prerequisites to START this phase:
 - [x] CI/CD pipeline configured
 - [x] Research completed (Option B: Plugin approach)
 - [x] Edge Craft context documented
-- [ ] Babylon.js coordinate system math validated
+- [x] Babylon.js coordinate system math validated (2025-10-28 - system-analyst research)
 - [ ] Test assets prepared (sample meshes, terrains)
+- [ ] Test fixtures directory structure created (/tests/fixtures/)
+- [ ] Sample Z-up mesh created (cube, terrain)
+- [ ] Sample Y-up mesh created (for inverse testing)
 
 ---
 
@@ -119,13 +122,16 @@ Prerequisites to START this phase:
 - [ ] `YUpToZUpStrategy` inverse transformation
 - [ ] `TransformStrategyFactory` for strategy selection
 - [ ] Position transformation (Vector3)
-- [ ] Rotation transformation (Quaternion)
+- [ ] Rotation transformation (Quaternion with normalization)
 - [ ] Scaling transformation (Vector3)
 - [ ] Mesh transformation (position, rotation, scale)
-- [ ] Camera transformation (optional, configurable)
+- [ ] skipConversion metadata support (allow users to exclude meshes)
+- [ ] Handedness conversion parameter (left-handed ↔ right-handed)
 - [ ] Automatic mesh conversion on scene.onNewMeshAdded
 - [ ] Manual mesh conversion API
 - [ ] Resource cleanup (dispose)
+- [ ] Camera transformation (DEFERRED to v0.2.0 - out of scope for v0.1.0)
+- [ ] Matrix transformation API (DEFERRED to v0.2.0 - out of scope for v0.1.0)
 
 ### Testing
 
@@ -135,23 +141,32 @@ Prerequisites to START this phase:
   - Reversibility (Y→Z→Y = identity)
   - Edge cases (zero vectors, large numbers, negative values)
   - Vector length preservation
-- [ ] Unit tests for Quaternion transformations
+- [ ] Unit tests for Quaternion transformations (>90% coverage)
   - Rotation preservation
-  - Normalization
-  - Identity quaternion handling
-- [ ] Unit tests for Matrix transformations
-  - Translation, rotation, scaling
-  - Determinant preservation
+  - Quaternion normalization (automatic after multiply)
+  - Identity quaternion handling (edge case)
+  - Floating-point error accumulation tests
+  - Handedness conversion (left ↔ right)
+- [ ] Unit tests for skipConversion metadata
+  - Mesh marked with skipConversion before scene add
+  - Auto-convert respects skipConversion flag
+  - Manual convertMesh respects skipConversion flag
 - [ ] Integration tests with Babylon.js
   - Plugin initialization
   - Mesh transformation
-  - Camera transformation
   - Resource cleanup (no memory leaks)
+  - Memory leak test: 1000+ create/dispose cycles
+  - skipConversion metadata in auto-convert mode
+  - Handedness conversion (left-handed ↔ right-handed)
 - [x] Performance benchmarks (benchmarks/performance.bench.ts)
   - [x] Vector3: >100,000 ops/sec (ACHIEVED 22M ops/sec - 220x faster!)
   - [x] Quaternion: >66,000 ops/sec (ACHIEVED 19M ops/sec - 287x faster!)
-  - [ ] Matrix: >5,000 ops/sec (not yet implemented)
+  - [ ] Matrix: >5,000 ops/sec (DEFERRED to v0.2.0)
   - [x] Plugin overhead: <1% scene init time (achieved - minimal overhead)
+- [ ] Bundle size validation
+  - [ ] Verify tree-shakeable exports from @babylonjs/core
+  - [ ] Test with bundlephobia or similar tool
+  - [ ] Document correct import patterns in README
 
 ### Documentation
 
@@ -189,6 +204,32 @@ Prerequisites to START this phase:
 
 ## 🏗️ Implementation Breakdown
 
+### Scope Clarification: What's In vs Out of v0.1.0
+
+**IN SCOPE for v0.1.0:**
+- ✅ Vector3 position transformation (Z-up ↔ Y-up)
+- ✅ Quaternion rotation transformation (with normalization)
+- ✅ Vector3 scaling transformation
+- ✅ Mesh transformation (position, rotation, scale)
+- ✅ Automatic mesh conversion (scene.onNewMeshAdded)
+- ✅ Manual mesh conversion API
+- ✅ skipConversion metadata support
+- ✅ Handedness conversion (left ↔ right)
+- ✅ Resource cleanup (dispose, memory leak prevention)
+
+**OUT OF SCOPE for v0.1.0 (Deferred to v0.2.0):**
+- ❌ Camera transformation (complex, needs separate PRP)
+- ❌ Matrix transformation API (can be derived from Vector3/Quaternion)
+- ❌ Animation retargeting
+- ❌ UV coordinate adjustments
+- ❌ Vertex-level transformation
+- ❌ glTF/OBJ loader integration
+
+**Rationale:**
+Focus v0.1.0 on core mesh transformation with high quality and reliability. Camera and matrix transformations add complexity and edge cases that deserve their own focused development cycle.
+
+---
+
 ### Phase 1: Core Transform Utilities (Week 1)
 
 **Goal:** Pure transformation functions with comprehensive tests
@@ -207,6 +248,8 @@ Prerequisites to START this phase:
 // Input: Z-up (x, y, z) where z=up
 // Output: Y-up (x, y, z) where y=up
 class ZUpToYUpStrategy {
+  constructor(private handedness: 'left' | 'right' = 'left') {}
+
   convertPosition(pos: Vector3): Vector3 {
     return new Vector3(
       pos.x,   // X unchanged
@@ -218,7 +261,20 @@ class ZUpToYUpStrategy {
   convertRotation(quat: Quaternion): Quaternion {
     // Apply 90-degree X-axis rotation correction
     const correction = Quaternion.RotationAxis(Vector3.Right(), Math.PI / 2);
-    return quat.multiply(correction);
+    let result = quat.multiply(correction);
+
+    // CRITICAL: Handle handedness conversion
+    if (this.handedness === 'right') {
+      // Negate W component for right-handed to left-handed conversion
+      // This inverts the rotation while preserving direction
+      result = new Quaternion(result.x, result.y, result.z, -result.w);
+    }
+
+    // CRITICAL: Always normalize to prevent floating-point error accumulation
+    // Without normalization, successive operations cause object scaling/shearing
+    result.normalize();
+
+    return result;
   }
 
   convertScale(scale: Vector3): Vector3 {
@@ -227,6 +283,29 @@ class ZUpToYUpStrategy {
   }
 }
 ```
+
+**Quaternion Normalization (CRITICAL):**
+
+Quaternions accumulate floating-point errors through successive multiplications. Without normalization:
+- Objects gradually scale/shear over time
+- Rotations become unreliable
+- Division-by-zero risk with identity quaternion (1,0,0,0)
+
+**Solution:** Always call `.normalize()` after quaternion operations.
+
+**References:**
+- https://stackoverflow.com/questions/11667783/quaternion-and-normalization
+- https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+
+**Handedness Conversion:**
+
+Babylon.js uses LEFT-HANDED coordinate system by default. Blender, Unreal Engine, and many CAD tools use RIGHT-HANDED. When converting from right-handed to left-handed:
+- Negate quaternion W component (inverts rotation)
+- Or swap two axes and negate third
+
+**References:**
+- https://forum.babylonjs.com/t/convert-scene-from-right-to-left/41240
+- https://stackoverflow.com/questions/18818102/convert-quaternion-representing-rotation-from-one-coordinate-system-to-another
 
 **Tests:**
 - 50+ test cases covering all edge cases
@@ -250,6 +329,7 @@ export interface AnyUpPluginOptions {
   targetSystem: 'y-up' | 'z-up';
   autoConvert: boolean;  // Auto-convert meshes on scene add?
   preserveOriginal: boolean;  // Store original transforms in metadata?
+  handedness?: 'left' | 'right';  // Coordinate system handedness (default: 'left')
 }
 
 export class AnyUpPlugin {
@@ -257,10 +337,11 @@ export class AnyUpPlugin {
   private strategy: ITransformStrategy;
   private observers: Observer<any>[] = [];
 
-  constructor(options: AnyUpPluginOptions) {
+  constructor(private options: AnyUpPluginOptions) {
     this.strategy = TransformStrategyFactory.createStrategy(
       options.sourceSystem,
-      options.targetSystem
+      options.targetSystem,
+      options.handedness ?? 'left'
     );
   }
 
@@ -281,8 +362,15 @@ export class AnyUpPlugin {
   }
 
   public convertMesh(mesh: Mesh): void {
+    // CRITICAL: Check if already converted
     if (mesh.metadata?.coordinateSystemConverted) {
       return; // Already converted
+    }
+
+    // CRITICAL: Check if user wants to skip conversion
+    // This allows users to mark meshes BEFORE adding to scene
+    if (mesh.metadata?.skipConversion === true) {
+      return; // User explicitly excluded this mesh
     }
 
     if (this.options.preserveOriginal) {
@@ -307,7 +395,9 @@ export class AnyUpPlugin {
 
   public dispose(): void {
     if (this.scene) {
-      // Remove observers
+      // CRITICAL: Remove all observers to prevent memory leaks
+      // Babylon.js has history of memory leaks with observers
+      // Reference: https://github.com/BabylonJS/Babylon.js/issues/12084
       this.observers.forEach(obs => {
         this.scene!.onNewMeshAddedObservable.remove(obs);
       });
@@ -323,6 +413,44 @@ export class AnyUpPlugin {
   }
 }
 ```
+
+**skipConversion Metadata Workaround:**
+
+**Problem:** `scene.onNewMeshAddedObservable` fires IMMEDIATELY when mesh is created, before user can set properties.
+
+**Solution:** Users can mark meshes BEFORE adding to scene:
+
+```typescript
+// User creates mesh
+const mesh = MeshBuilder.CreateBox('myBox', {}, scene);
+
+// User marks mesh to skip conversion BEFORE observable fires
+mesh.metadata = mesh.metadata || {};
+mesh.metadata.skipConversion = true;
+
+// Now when mesh is added, plugin checks skipConversion flag
+// Conversion is skipped for this mesh
+```
+
+**Reference:** https://forum.babylonjs.com/t/scene-newmesh-observable-and-mesh-observables/6601
+
+**Tree-Shaking Best Practices:**
+
+To ensure <10KB bundle size, use specific imports:
+
+```typescript
+// ❌ BAD: Imports entire @babylonjs/core (bloats bundle)
+import { Scene, Mesh, Vector3 } from '@babylonjs/core';
+
+// ✅ GOOD: Tree-shakeable imports
+import { Scene } from '@babylonjs/core/scene';
+import { Mesh } from '@babylonjs/core/Meshes/mesh';
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+```
+
+**References:**
+- https://forum.babylonjs.com/t/tree-shaking-es6/35049
+- https://new-doc-page.vercel.app/divingDeeper/developWithBjs/treeShaking
 
 **Tests:**
 - Integration tests with NullEngine (headless Babylon)
@@ -398,14 +526,22 @@ tests/transforms/TransformStrategyFactory.test.ts
 - Reversibility (transform then inverse = identity)
 - Edge cases:
   - Zero vectors
-  - Identity quaternions
+  - Identity quaternions (special case for normalization)
   - Very large coordinates (1e6)
   - Very small coordinates (1e-6)
   - Negative coordinates
 - Property preservation:
   - Vector length preservation
-  - Quaternion normalization
-  - Matrix determinant sign
+  - Quaternion normalization (automatic after multiply)
+  - Floating-point error accumulation (successive operations)
+- Handedness conversion:
+  - Left-handed to left-handed (no change)
+  - Right-handed to left-handed (negate W component)
+  - Verify rotation direction preserved
+- skipConversion metadata:
+  - Mesh marked with skipConversion=true is not converted
+  - Mesh without skipConversion is converted normally
+  - skipConversion works in both auto-convert and manual modes
 
 ### Integration Tests
 
@@ -420,9 +556,20 @@ tests/plugin/AnyUpPlugin.test.ts
 - Manual conversion mode
 - Preserve original transforms
 - Multiple meshes in scene
-- Camera transformation
 - Resource cleanup (dispose)
 - Error handling (null mesh, disposed scene)
+- Memory leak test: 1000+ create/dispose cycles
+  - Create scene, initialize plugin, add meshes, dispose scene
+  - Verify no observer leaks
+  - Verify no metadata leaks
+  - Reference: https://github.com/BabylonJS/Babylon.js/issues/12084
+- skipConversion metadata in auto-convert mode
+  - Mesh marked with skipConversion=true is not converted
+  - Mesh without skipConversion is converted
+- Handedness conversion integration
+  - Left-handed source to left-handed target
+  - Right-handed source (e.g., Blender) to left-handed target (Babylon)
+  - Verify rotations match expected orientation
 
 ### Performance Benchmarks
 
@@ -525,7 +672,18 @@ None (Phase in progress)
 | 2025-10-27 | developer      | Set up GitHub Pages deployment workflow   | ✅ Complete |
 | 2025-10-27 | developer      | Published v0.0.1 to npm                   | ✅ Complete |
 | 2025-10-27 | system-analyst | Created PRP for interactive landing page  | ✅ Complete |
+| 2025-10-28 | system-analyst | Deep research: Babylon.js APIs, coordinate math, edge cases | ✅ Complete |
+| 2025-10-28 | system-analyst | Validated DoR/DoD, discovered 6 critical concerns | ✅ Complete |
+| 2025-10-28 | system-analyst | Added 35+ authoritative reference links   | ✅ Complete |
+| 2025-10-28 | system-analyst | Signal: WORRIED (6/10) - PRP needs updates before implementation | ✅ Complete |
+| 2025-10-28 | developer      | Reviewed system-analyst findings and updated PRP | ✅ Complete |
+| 2025-10-28 | developer      | Updated Implementation Breakdown with normalization, handedness, skipConversion | ✅ Complete |
+| 2025-10-28 | developer      | Updated Testing & Validation with new test cases | ✅ Complete |
+| 2025-10-28 | developer      | Updated DoR with test assets requirements | ✅ Complete |
+| 2025-10-28 | developer      | Clarified scope: Camera/Matrix deferred to v0.2.0 | ✅ Complete |
+| 2025-10-28 | developer      | Signal: CONFIDENT (3/10) - Ready for implementation | ✅ Complete |
 | TBD        | aqa-engineer   | Write unit tests                          | 📋 Planned  |
+| TBD        | developer      | Implement core transform strategies       | 📋 Planned  |
 | TBD        | developer      | Implement plugin system                   | 📋 Planned  |
 | TBD        | aqa-engineer   | Integration tests                         | 📋 Planned  |
 
@@ -533,15 +691,57 @@ None (Phase in progress)
 
 ## 🔗 Related Materials
 
-### Research & References
+### Research & References (Updated 2025-10-28)
 
+#### Official Babylon.js Documentation
+- **Coordinate System Transform Docs**: https://doc.babylonjs.com/features/featuresDeepDive/mesh/transforms/center_origin/transform_coords
+- **Rotation Quaternions**: https://doc.babylonjs.com/features/featuresDeepDive/mesh/transforms/center_origin/rotation_quaternions
+- **Quaternion API Reference**: https://doc.babylonjs.com/typedoc/classes/BABYLON.Quaternion
+- **Matrix API Reference**: https://doc.babylonjs.com/typedoc/classes/babylon.matrix
+- **Observable API Reference**: https://doc.babylonjs.com/typedoc/classes/BABYLON.Observable
+- **Observables Deep Dive**: https://doc.babylonjs.com/features/featuresDeepDive/events/observables/
+- **Scene API Reference**: https://doc.babylonjs.com/typedoc/classes/BABYLON.Scene
+- **NullEngine for Testing**: https://endoc.cnbabylon.com/features/nullengine
+- **Tree Shaking Best Practices**: https://new-doc-page.vercel.app/divingDeeper/developWithBjs/treeShaking
+
+#### Babylon.js Source Code
+- **TransformNode Source**: https://github.com/BabylonJS/Babylon.js/blob/master/packages/dev/core/src/Meshes/transformNode.ts
+- **Scene Source**: https://github.com/BabylonJS/Babylon.js/blob/master/packages/dev/core/src/scene.ts
+
+#### Community Discussions & Examples
+- **Z-Up Coordinate System Forum Thread**: https://forum.babylonjs.com/t/changing-the-coordinate-system-so-that-z-is-the-up-vector/43290
+- **Blender XZY Coordinate System**: https://forum.babylonjs.com/t/change-standard-xyz-coordinate-system-to-xzy-like-blender-etc/43240
+- **UE4 Scene Conversion (Z-up to Y-up)**: https://forum.babylonjs.com/t/how-to-convert-ue4-scene-to-babylon-js-coordinate-system-from-z-up-to-y-up/60029
+- **Scene newMesh Observable Discussion**: https://forum.babylonjs.com/t/scene-newmesh-observable-and-mesh-observables/6601
+- **Unit Testing with NullEngine**: https://kmitov.com/posts/how-to-do-headless-specs-with-the-babylon-js-nullengine/
+- **Memory Leak Prevention**: https://forum.babylonjs.com/t/clearing-the-scene-and-engine-is-this-overkill/407
+
+#### Mathematical Foundations
+- **Coordinate System Conversion (Game Dev SE)**: https://gamedev.stackexchange.com/questions/7915/changing-coordinate-system-from-z-up-to-y-up
+- **3D Coordinate Transformation Guide**: https://github.com/jakelazaroff/til/blob/main/math/convert-between-3d-coordinate-systems.md
+- **Transformation Matrix (Wikipedia)**: https://en.wikipedia.org/wiki/Transformation_matrix
+- **Rotation Matrix (Wikipedia)**: https://en.wikipedia.org/wiki/Rotation_matrix
+- **Quaternions and Spatial Rotation**: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+- **Coordinate Transformations (Robotics)**: https://motion.cs.illinois.edu/RoboticSystems/CoordinateTransformations.html
+- **Converting Quaternions Between Coordinate Systems**: https://stackoverflow.com/questions/18818102/convert-quaternion-representing-rotation-from-one-coordinate-system-to-another
+- **Quaternion Normalization**: https://stackoverflow.com/questions/11667783/quaternion-and-normalization
+
+#### Performance & Bundle Size
+- **Tree Shaking Thread**: https://forum.babylonjs.com/t/tree-shaking-es6/35049
+- **ES6 Bundle Size Discussion**: https://forum.babylonjs.com/t/es6-tree-shaking-build-large-bundle-size/21084
+- **Bundle Size Optimization**: https://forum.babylonjs.com/t/how-to-reduce-bundle-size-further/8217
+- **Performance Optimization PR**: https://github.com/BabylonJS/Babylon.js/pull/13474
+
+#### Memory Management & Disposal
+- **Observer Memory Leaks**: https://github.com/BabylonJS/Babylon.js/issues/12084
+- **Skeleton Disposal Memory Leak**: https://github.com/BabylonJS/Babylon.js/issues/5940
+- **Dispose Best Practices**: https://forum.babylonjs.com/t/dispose-doesnt-free-the-memory/10403
+
+#### Other Engine Comparisons
 - **Original Edge Craft PRP**: `/Users/dcversus/conductor/edgecraft/.conductor/lahore/PRPs/babylonjs-native-zup-coordinate-system.md`
 - **Three.js Implementation**: https://github.com/mrdoob/three.js/blob/dev/src/core/Object3D.js
 - **Unreal Engine Coordinate System Docs**: https://dev.epicgames.com/documentation/coordinate-system-and-spaces
-- **Babylon.js Matrix Source**: https://github.com/BabylonJS/Babylon.js/blob/master/packages/dev/core/src/Meshes/transformNode.ts
-- **Babylon.js Forum Discussions**:
-  - https://forum.babylonjs.com/t/change-standard-xyz-coordinate-system-to-xzy-like-blender-etc/43240
-  - https://forum.babylonjs.com/t/changing-the-coordinate-system-so-that-z-is-the-up-vector/43290
+- **Three.js Y-up to Z-up Discussion**: https://discourse.threejs.org/t/switch-matrix-from-y-up-to-z-up/13331
 
 ### Dependencies
 
@@ -558,6 +758,351 @@ None (Phase in progress)
 - Animation retargeting
 - Vertex-level transformation (for pre-import conversion)
 - Integration with glTF/OBJ loaders
+
+---
+
+## 🔬 Technical Research Findings (Added 2025-10-28)
+
+### Validated Mathematical Approach
+
+The PRP's transformation formula is **CORRECT** and confirmed by multiple authoritative sources:
+
+**Z-up to Y-up transformation:**
+```typescript
+// Formula: (x, y, z) Z-up → (x, z, -y) Y-up
+// This is equivalent to a 90° rotation around the X-axis
+new Vector3(position.x, position.z, -position.y)
+```
+
+**Mathematical basis:**
+- Rotation matrix for 90° around X-axis: `[[1,0,0], [0,0,-1], [0,1,0]]`
+- Swaps Y and Z coordinates
+- Negates the new Z coordinate to preserve handedness
+- Confirmed by: Game Dev Stack Exchange, Wikipedia, Robotics textbooks
+
+### Critical Edge Cases Discovered
+
+#### 1. Quaternion Normalization (HIGH PRIORITY)
+**Issue:** Floating-point error accumulates with successive quaternion operations
+**Impact:** Objects scale, shear, and behave unexpectedly after many transformations
+**Solution Required:**
+- Always normalize quaternions after multiplication
+- Handle identity quaternion (1,0,0,0) edge case to avoid division by zero
+- Add automatic normalization in `convertRotation()` methods
+
+**References:**
+- https://stackoverflow.com/questions/11667783/quaternion-and-normalization
+- https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+
+#### 2. Handedness Conversion (MEDIUM PRIORITY)
+**Issue:** Babylon.js uses LEFT-HANDED coordinate system by default
+**Impact:** Converting from right-handed systems (Blender, UE4) requires negating rotation components
+**Current PRP status:** Not explicitly handled
+**Recommendation:** Add configuration option for handedness conversion
+
+**References:**
+- https://forum.babylonjs.com/t/convert-scene-from-right-to-left/41240
+- https://stackoverflow.com/questions/18818102/convert-quaternion-representing-rotation-from-one-coordinate-system-to-another
+
+#### 3. Observer Memory Leaks (HIGH PRIORITY)
+**Issue:** `scene.onNewMeshAddedObservable` observers can cause memory leaks if not properly removed
+**Impact:** Memory accumulates when scenes are created/disposed repeatedly
+**Current PRP implementation:** Correctly handles observer cleanup in `dispose()`
+**Validation needed:** Integration tests must verify no memory leaks after 1000+ dispose cycles
+
+**References:**
+- https://github.com/BabylonJS/Babylon.js/issues/12084
+- https://forum.babylonjs.com/t/clearing-the-scene-and-engine-is-this-overkill/407
+
+#### 4. Observable Timing Issue (MEDIUM PRIORITY)
+**Issue:** `onNewMeshAddedObservable` fires IMMEDIATELY when mesh is created
+**Impact:** Setting properties after mesh creation happens BEFORE observable fires
+**Implication for plugin:** Auto-conversion happens before user can set metadata like "skipConversion"
+**Recommendation:** Add metadata check in `convertMesh()` to allow users to mark meshes as "skipConversion" BEFORE adding to scene
+
+**Reference:** https://forum.babylonjs.com/t/scene-newmesh-observable-and-mesh-observables/6601
+
+#### 5. Rotation vs RotationQuaternion Conflict (MEDIUM PRIORITY)
+**Issue:** In Babylon.js <4.0, using both `rotation` and `rotationQuaternion` causes conflicts
+**Status:** Fixed in Babylon.js 4.0+ (auto-handled)
+**Peer dependency:** Plugin requires ^7.0.0, so this is NOT a concern
+**Action:** Document in README that Babylon.js 7.0+ is required
+
+#### 6. Tree Shaking for Bundle Size (HIGH PRIORITY)
+**Issue:** Importing from `@babylonjs/core` directly doesn't enable tree shaking
+**Impact:** Could bloat consumer bundles instead of achieving <10KB target
+**Solution Required:**
+- Use specific imports: `@babylonjs/core/Maths/math.vector`
+- Test with bundlephobia to verify tree-shakeable exports
+- Document proper import pattern in README
+
+**References:**
+- https://forum.babylonjs.com/t/tree-shaking-es6/35049
+- https://new-doc-page.vercel.app/divingDeeper/developWithBjs/treeShaking
+
+### Performance Validation
+
+**NullEngine for Testing:** Confirmed as the correct approach for headless unit tests
+- Zero rendering overhead
+- Full Babylon.js API support
+- Suppress logs with: `Logger.LogLevels = Logger.WarningLogLevel`
+
+**Reference:** https://kmitov.com/posts/how-to-do-headless-specs-with-the-babylon-js-nullengine/
+
+### DoR Validation Results
+
+**Checked all prerequisites:**
+
+✅ **COMPLETE:**
+- [x] Repository created and configured
+- [x] Package name reserved on npm
+- [x] TypeScript strict mode configured
+- [x] Testing framework (Vitest) set up
+- [x] CI/CD pipeline configured
+- [x] Research completed (Option B: Plugin approach)
+- [x] Edge Craft context documented
+
+⚠️ **INCOMPLETE (blocking execution):**
+- [ ] **Babylon.js coordinate system math validated** → NOW VALIDATED (see above)
+- [ ] **Test assets prepared** → NEEDS ATTENTION (no sample meshes or terrain files exist)
+
+### DoD Validation Results
+
+**Reviewed all deliverables:**
+
+✅ **Well-defined and measurable:**
+- Core implementation tasks are specific and testable
+- Testing requirements are quantifiable (>90% coverage, >100K ops/sec)
+- Documentation requirements follow 3-file rule
+- Release checklist is comprehensive
+
+⚠️ **Missing/Unclear:**
+- **Camera transformation** listed in DoD but not specified in implementation breakdown
+- **Matrix transformation tests** listed but no Matrix transform strategy implementation planned
+- **Test assets** (sample meshes, terrains) not specified in any DoD item
+
+### Recommended Actions Before Implementation
+
+1. **Add to DoR:** Prepare test assets (sample Z-up mesh, terrain data)
+2. **Add to DoD:** Quaternion normalization in all rotation methods
+3. **Add to DoD:** Handedness conversion option
+4. **Add to DoD:** "skipConversion" metadata support
+5. **Add to Implementation Breakdown:**
+   - Camera transformation strategy (if keeping in scope)
+   - Matrix transformation strategy (or remove from DoD)
+   - Handedness conversion logic
+6. **Add to Testing Strategy:** Memory leak test (1000+ create/dispose cycles)
+
+---
+
+## 🔔 Agent Signals
+
+### 2025-10-28 - system-analyst - Signal: WORRIED (6/10)
+
+**Comment:** Research complete with 35+ authoritative sources validated. DoR/DoD are mostly well-defined, but several critical edge cases and missing specifications discovered that could block implementation.
+
+**Context:**
+
+**Mathematical Foundation: VALIDATED ✅**
+- Z-up to Y-up formula confirmed correct by multiple sources
+- Rotation matrix approach validated
+- Performance targets are achievable (benchmarks already exceed by 220-287x)
+
+**Critical Concerns Discovered:**
+
+1. **Quaternion Normalization (MUST FIX):**
+   - Floating-point error accumulation will cause object distortion
+   - Identity quaternion edge case not handled
+   - IMPACT: Core transformation will be unreliable without normalization
+   - SOURCE: https://stackoverflow.com/questions/11667783/quaternion-and-normalization
+
+2. **Memory Leak Risk (MUST VALIDATE):**
+   - Observer cleanup implementation exists but not tested
+   - Babylon.js has history of memory leaks with observers
+   - IMPACT: Production memory leaks in Edge Craft
+   - SOURCE: https://github.com/BabylonJS/Babylon.js/issues/12084
+
+3. **Handedness Conversion (NOT SPECIFIED):**
+   - Babylon.js uses LEFT-HANDED, Blender/UE4 use RIGHT-HANDED
+   - Current PRP doesn't handle handedness conversion
+   - IMPACT: Wrong rotations when importing from Blender
+   - SOURCE: https://forum.babylonjs.com/t/convert-scene-from-right-to-left/41240
+
+4. **Observable Timing Issue (NEEDS WORKAROUND):**
+   - onNewMeshAddedObservable fires BEFORE user can set properties
+   - Users can't mark meshes as "skipConversion" before auto-convert
+   - IMPACT: No way to exclude specific meshes from conversion
+   - SOURCE: https://forum.babylonjs.com/t/scene-newmesh-observable-and-mesh-observables/6601
+
+5. **Bundle Size Risk (NEEDS VALIDATION):**
+   - Incorrect imports from @babylonjs/core won't tree-shake
+   - Could bloat consumer bundles, missing <10KB target
+   - IMPACT: Defeats purpose of lightweight plugin
+   - SOURCE: https://forum.babylonjs.com/t/tree-shaking-es6/35049
+
+6. **Scope Ambiguity:**
+   - Camera transformation in DoD but not in implementation breakdown
+   - Matrix transformation tests required but no Matrix strategy planned
+   - IMPACT: Unclear what v0.1.0 actually delivers
+
+**Incomplete DoR Items:**
+- [ ] Test assets not prepared (blocking TDD approach)
+- [x] Math validated (completed in this research)
+
+**Action Required:**
+
+**BEFORE implementation begins:**
+
+1. **Update PRP Implementation Breakdown:**
+   - Add quaternion normalization to all rotation methods
+   - Add handedness conversion parameter to plugin options
+   - Add "skipConversion" metadata check in convertMesh()
+   - Clarify: Is camera transformation in scope for v0.1.0?
+   - Clarify: Is Matrix transformation in scope for v0.1.0?
+
+2. **Update PRP Testing Strategy:**
+   - Add memory leak test (1000+ dispose cycles)
+   - Add quaternion normalization tests (identity, accumulated error)
+   - Add handedness conversion tests
+   - Add "skipConversion" metadata test
+
+3. **Prepare Test Assets:**
+   - Create sample Z-up mesh (cube, terrain)
+   - Create sample Y-up mesh for inverse testing
+   - Store in `/tests/fixtures/` directory
+
+4. **Validate Tree Shaking:**
+   - Document correct import pattern in CONTRIBUTING.md
+   - Add bundle size validation to CI/CD
+
+**Recommendation:** PAUSE implementation until PRP is updated with the above findings. The DoR is not truly ready - math is validated, but critical edge cases and test assets are missing. Risk of implementing unreliable transformation or memory leaks is HIGH (6/10 worry level).
+
+**Next Agent:** `developer` should review these findings, update the PRP implementation breakdown with normalization/handedness/skipConversion logic, and clarify scope ambiguities before coding begins.
+
+---
+
+### 2025-10-28 - developer - Signal: CONFIDENT (3/10)
+
+**Comment:** All system-analyst concerns addressed. PRP updated with comprehensive implementation guidance. Ready to proceed to implementation phase.
+
+**Context:**
+
+**What I Updated:**
+
+1. **DoR (Definition of Ready):**
+   - ✅ Marked "Babylon.js coordinate system math validated" as complete (system-analyst research)
+   - ➕ Added test fixtures directory structure requirement
+   - ➕ Added sample mesh requirements (Z-up and Y-up test assets)
+
+2. **DoD (Definition of Done):**
+   - ✅ Added "Rotation transformation (Quaternion with normalization)"
+   - ✅ Added "skipConversion metadata support"
+   - ✅ Added "Handedness conversion parameter (left ↔ right)"
+   - ✅ Clarified Camera transformation: DEFERRED to v0.2.0
+   - ✅ Clarified Matrix transformation: DEFERRED to v0.2.0
+   - ➕ Added unit tests for skipConversion metadata
+   - ➕ Added quaternion normalization tests
+   - ➕ Added handedness conversion tests
+   - ➕ Added memory leak test (1000+ dispose cycles)
+   - ➕ Added bundle size validation tests
+
+3. **Implementation Breakdown:**
+   - ✅ Added **Scope Clarification** section (IN vs OUT for v0.1.0)
+   - ✅ Updated `ZUpToYUpStrategy` with:
+     - Handedness parameter in constructor
+     - Handedness conversion logic in `convertRotation()`
+     - **Quaternion normalization** after multiply (CRITICAL)
+     - Code comments explaining normalization necessity
+   - ✅ Added **Quaternion Normalization** subsection with:
+     - Why normalization is critical (floating-point error accumulation)
+     - Consequences of skipping normalization (scaling/shearing)
+     - Solution: Always call `.normalize()` after operations
+     - References to authoritative sources
+   - ✅ Added **Handedness Conversion** subsection with:
+     - Babylon.js LEFT-HANDED vs Blender/UE4 RIGHT-HANDED
+     - Conversion technique (negate W component)
+     - References to forum discussions and Stack Overflow
+   - ✅ Updated `AnyUpPlugin` with:
+     - `handedness` parameter in options interface
+     - **skipConversion metadata check** in `convertMesh()`
+     - Enhanced observer cleanup with comments about memory leak prevention
+     - Reference to Babylon.js issue #12084
+   - ✅ Added **skipConversion Metadata Workaround** subsection with:
+     - Problem explanation (observable timing issue)
+     - Solution (mark meshes before adding to scene)
+     - Code example
+     - Reference to forum discussion
+   - ✅ Added **Tree-Shaking Best Practices** subsection with:
+     - Correct vs incorrect import patterns
+     - Bundle size impact
+     - References to tree-shaking documentation
+
+4. **Testing & Validation:**
+   - ✅ Added test cases for:
+     - Identity quaternion edge case
+     - Floating-point error accumulation
+     - Handedness conversion (left-to-left, right-to-left)
+     - skipConversion metadata (auto-convert and manual modes)
+   - ✅ Added integration test scenarios:
+     - Memory leak test (1000+ create/dispose cycles)
+     - Observer cleanup verification
+     - Metadata cleanup verification
+     - Handedness conversion integration
+     - skipConversion in auto-convert mode
+   - ✅ Added bundle size validation to DoD
+
+5. **Progress Tracking:**
+   - ✅ Updated with all developer activities (8 entries)
+   - ✅ Added developer signal: CONFIDENT (3/10)
+
+**Concerns Resolved:**
+
+| System-Analyst Concern | Resolution |
+|------------------------|------------|
+| 1. Quaternion Normalization | ✅ Added `.normalize()` call after multiply in `convertRotation()`, added explanation, tests |
+| 2. Memory Leak Risk | ✅ Added 1000+ dispose cycle test, enhanced cleanup comments with reference |
+| 3. Handedness Conversion | ✅ Added `handedness` parameter to options, added conversion logic in strategies |
+| 4. Observable Timing Issue | ✅ Added `skipConversion` metadata check, documented workaround with code example |
+| 5. Bundle Size Risk | ✅ Added tree-shaking best practices, bundle size validation tests |
+| 6. Scope Ambiguity | ✅ Clarified Camera/Matrix deferred to v0.2.0, added scope clarification section |
+
+**Remaining DoR Items:**
+- [ ] Prepare test assets (sample meshes, terrains) - **BLOCKER for TDD approach**
+- [ ] Create `/tests/fixtures/` directory structure - **BLOCKER for TDD approach**
+
+**Action Required:**
+
+**CAN PROCEED to implementation** with these prerequisites:
+
+1. **Before writing code:** Create test fixtures
+   ```bash
+   mkdir -p tests/fixtures
+   # Create sample Z-up mesh (JSON format or Babylon serialized)
+   # Create sample Y-up mesh for inverse testing
+   ```
+
+2. **Implementation Order:**
+   - Start with `ZUpToYUpStrategy` (includes normalization, handedness)
+   - Write unit tests (>90% coverage target)
+   - Implement `YUpToZUpStrategy` (inverse)
+   - Write unit tests
+   - Implement `AnyUpPlugin` (includes skipConversion check)
+   - Write integration tests (including 1000+ dispose cycle test)
+   - Validate bundle size with tree-shaking
+
+3. **Quality Gates (RUN BEFORE EVERY RESPONSE):**
+   ```bash
+   npm run typecheck  # Must pass
+   npm run lint       # Must pass
+   npm run test       # Every 3-5 changes
+   npm run validate   # Before feature completion
+   ```
+
+**Confidence Level: 3/10 (CONFIDENT)**
+
+All critical concerns are now addressed in the PRP. Implementation Breakdown is detailed and actionable. Testing strategy is comprehensive. Scope is clear. Only remaining blocker is test fixtures, which is straightforward to create.
+
+**Ready to proceed:** Yes, after creating test fixtures.
 
 ---
 

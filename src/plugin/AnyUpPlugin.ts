@@ -14,7 +14,8 @@ export class AnyUpPlugin implements ICoordinateSystemPlugin {
   constructor(public readonly options: AnyUpPluginOptions) {
     this.strategy = TransformStrategyFactory.createStrategy(
       options.sourceSystem,
-      options.targetSystem
+      options.targetSystem,
+      options.handedness ?? 'left-handed'
     );
   }
 
@@ -27,6 +28,11 @@ export class AnyUpPlugin implements ICoordinateSystemPlugin {
   }
 
   convertMesh(mesh: AbstractMesh): void {
+    const metadata = (mesh.metadata ?? {}) as Record<string, unknown>;
+    if (metadata['skipConversion'] === true) {
+      return;
+    }
+
     if (this.options.preserveOriginal) {
       this.storeOriginalTransform(mesh);
     }
@@ -36,9 +42,18 @@ export class AnyUpPlugin implements ICoordinateSystemPlugin {
       ? this.strategy.convertRotation(mesh.rotationQuaternion)
       : null;
     mesh.scaling = this.strategy.convertScaling(mesh.scaling);
+
+    const updatedMetadata = (mesh.metadata ?? {}) as Record<string, unknown>;
+    updatedMetadata['coordinateSystemConverted'] = true;
+    mesh.metadata = updatedMetadata;
   }
 
   convertTransformNode(node: TransformNode): void {
+    const metadata = (node.metadata ?? {}) as Record<string, unknown>;
+    if (metadata['skipConversion'] === true) {
+      return;
+    }
+
     if (this.options.preserveOriginal) {
       this.storeOriginalTransform(node);
     }
@@ -48,6 +63,10 @@ export class AnyUpPlugin implements ICoordinateSystemPlugin {
       ? this.strategy.convertRotation(node.rotationQuaternion)
       : null;
     node.scaling = this.strategy.convertScaling(node.scaling);
+
+    const updatedMetadata = (node.metadata ?? {}) as Record<string, unknown>;
+    updatedMetadata['coordinateSystemConverted'] = true;
+    node.metadata = updatedMetadata;
   }
 
   dispose(): void {

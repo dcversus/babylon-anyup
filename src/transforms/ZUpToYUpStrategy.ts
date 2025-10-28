@@ -1,17 +1,33 @@
 import { Vector3, Quaternion } from '@babylonjs/core';
-import type { ITransformStrategy } from '../types/index.js';
+import type { ITransformStrategy, Handedness } from '../types/index.js';
 
 export class ZUpToYUpStrategy implements ITransformStrategy {
+  private readonly handedness: Handedness;
+
+  constructor(handedness: Handedness = 'left-handed') {
+    this.handedness = handedness;
+  }
+
   convertPosition(position: Vector3): Vector3 {
     return new Vector3(position.x, position.z, -position.y);
   }
 
   convertRotation(rotation: Quaternion): Quaternion {
+    let result = rotation.clone();
+
+    if (this.handedness === 'right-handed') {
+      result = new Quaternion(-result.x, -result.y, -result.z, result.w);
+    }
+
     const correctionQuat = Quaternion.RotationAxis(
       new Vector3(1, 0, 0),
       -Math.PI / 2
     );
-    return rotation.multiply(correctionQuat);
+
+    result = result.multiply(correctionQuat);
+    result.normalize();
+
+    return result;
   }
 
   convertScaling(scaling: Vector3): Vector3 {
