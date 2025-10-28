@@ -5,6 +5,7 @@ import { Slide4_Solutions } from './slides/Slide4_Solutions';
 import { Slide5_EdgeCraft } from './slides/Slide5_EdgeCraft';
 import { Slide6_BabylonAnyup } from './slides/Slide6_BabylonAnyup';
 import { FloatingBubbles } from './components/FloatingBubbles';
+import { TechFooter } from './components/TechFooter';
 import './App.css';
 
 function App() {
@@ -34,6 +35,9 @@ function App() {
         <section className="scene" data-scene="6">
           <Slide6_BabylonAnyup />
         </section>
+
+        {/* Tech Footer */}
+        <TechFooter />
       </div>
 
       <FloatingBubbles />

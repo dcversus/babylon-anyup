@@ -2,9 +2,53 @@ import { motion } from 'framer-motion';
 import './Slide.css';
 
 export const Slide3_Demand = () => {
+  // Floating request messages in background
+  const requestMessages = [
+    { text: 'Z-up support please...', x: '10%', y: '15%', delay: 0 },
+    { text: 'Can we get Z-up?', x: '85%', y: '25%', delay: 0.5 },
+    { text: 'Need coordinate transform', x: '15%', y: '70%', delay: 1 },
+    { text: 'When Z-up support?', x: '80%', y: '65%', delay: 1.5 },
+    { text: 'Babylon Z-up please', x: '20%', y: '40%', delay: 2 },
+    { text: 'Import from Blender broken', x: '75%', y: '45%', delay: 2.5 },
+  ];
+
   return (
     <div className="slide slide-3">
       <div className="slide-content centered">
+        {/* Background Floating Requests */}
+        <div className="background-requests">
+          {requestMessages.map((msg, index) => (
+            <motion.div
+              key={index}
+              className="floating-request"
+              style={{
+                left: msg.x,
+                top: msg.y,
+              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{
+                opacity: [0.2, 0.4, 0.2],
+                y: [-10, 10, -10],
+              }}
+              transition={{
+                opacity: {
+                  duration: 4,
+                  repeat: Infinity,
+                  delay: msg.delay,
+                },
+                y: {
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                  delay: msg.delay,
+                },
+              }}
+            >
+              {msg.text}
+            </motion.div>
+          ))}
+        </div>
+
         {/* Animated Typography */}
         <motion.div
           className="typography-container"
