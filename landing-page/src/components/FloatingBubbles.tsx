@@ -10,8 +10,9 @@ const BUBBLE_RADIUS = 30; // Collision radius in pixels
 const FRICTION = 0.95;
 const EDGE_MARGIN = 20; // Pixels from edge
 const RETURN_WAIT_TIME = 3000; // 3 seconds at border before returning
-const AUTO_RELEASE_INTERVAL = 30000; // 30 seconds
-const AUTO_RELEASE_LIMIT = 120000; // 2 minutes
+const AUTO_RELEASE_INTERVAL = 60000; // 60 seconds (1 minute)
+const INITIAL_BOOM_COUNT = 3; // Only 3 cards on initial BOOM
+const MAX_VISIBLE_CARDS = 10; // Maximum cards on screen
 
 type ClusterState = 'clustered' | 'exploding' | 'scattered' | 're-clustering';
 
@@ -24,6 +25,7 @@ export const FloatingBubbles = () => {
   const { scrollYProgress } = useScroll();
   const [clusterState, setClusterState] = useState<ClusterState>('clustered');
   const [showBoomText, setShowBoomText] = useState(false);
+  const [boomTextContent, setBoomTextContent] = useState('💥 BOOM!');
   const [lastScrollY, setLastScrollY] = useState(0);
   const [bubbles, setBubbles] = useState<BubbleData[]>(() =>
     commentsData.map((comment) => ({
@@ -46,35 +48,42 @@ export const FloatingBubbles = () => {
   // Define helper functions first
   const triggerBoom = useCallback(() => {
     setClusterState('exploding');
+    setBoomTextContent('💥 BOOM!');
     setShowBoomText(true);
 
     setTimeout(() => setShowBoomText(false), 1000);
 
-    // Explode all bubbles
-    setBubbles((prev) =>
-      prev.map((bubble, index) => {
-        const angle = (index / prev.length) * Math.PI * 2;
-        const distance = 200 + Math.random() * 150;
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
+    // Explode only INITIAL_BOOM_COUNT cards (3 cards)
+    setBubbles((prev) => {
+      let releasedCount = 0;
+      return prev.map((bubble) => {
+        // Only release first 3 clustered cards
+        if (bubble.state === 'clustered' && releasedCount < INITIAL_BOOM_COUNT) {
+          releasedCount++;
+          const angle = (releasedCount / INITIAL_BOOM_COUNT) * Math.PI * 2;
+          const distance = 200 + Math.random() * 150;
+          const vw = window.innerWidth;
+          const vh = window.innerHeight;
 
-        const targetX = (vw * CLUSTER_X) / 100 + Math.cos(angle) * distance;
-        const targetY = (vh * CLUSTER_Y) / 100 + Math.sin(angle) * distance;
+          const targetX = (vw * CLUSTER_X) / 100 + Math.cos(angle) * distance;
+          const targetY = (vh * CLUSTER_Y) / 100 + Math.sin(angle) * distance;
 
-        return {
-          ...bubble,
-          physics: {
-            ...bubble.physics,
-            position: { x: targetX, y: targetY },
-            velocity: {
-              x: Math.cos(angle) * 8,
-              y: Math.sin(angle) * 8,
+          return {
+            ...bubble,
+            physics: {
+              ...bubble.physics,
+              position: { x: targetX, y: targetY },
+              velocity: {
+                x: Math.cos(angle) * 8,
+                y: Math.sin(angle) * 8,
+              },
             },
-          },
-          state: 'scattered' as BubbleState,
-        };
-      })
-    );
+            state: 'scattered' as BubbleState,
+          };
+        }
+        return bubble;
+      });
+    });
 
     setTimeout(() => {
       setClusterState('scattered');
@@ -84,6 +93,10 @@ export const FloatingBubbles = () => {
 
   const releaseOneCard = useCallback(() => {
     setBubbles((prev) => {
+      // Check if we've reached MAX_VISIBLE_CARDS
+      const visibleCount = prev.filter((b) => b.state === 'scattered' || b.state === 'dragging' || b.state === 'returning').length;
+      if (visibleCount >= MAX_VISIBLE_CARDS) return prev;
+
       const clusteredIndex = prev.findIndex((b) => b.state === 'clustered');
       if (clusteredIndex === -1) return prev;
 
@@ -122,25 +135,13 @@ export const FloatingBubbles = () => {
   }, []);
 
   const startAutoRelease = useCallback(() => {
-    const startTime = Date.now();
-
     const releaseOne = () => {
-      const elapsed = Date.now() - startTime;
-      if (elapsed >= AUTO_RELEASE_LIMIT) {
-        stopAutoRelease();
-        // Show "DON'T!" animation here
-        return;
-      }
-
       releaseOneCard();
-
-      if (elapsed < AUTO_RELEASE_LIMIT) {
-        autoReleaseTimerRef.current = setTimeout(releaseOne, AUTO_RELEASE_INTERVAL);
-      }
+      autoReleaseTimerRef.current = setTimeout(releaseOne, AUTO_RELEASE_INTERVAL);
     };
 
     releaseOne();
-  }, [stopAutoRelease, releaseOneCard]);
+  }, [releaseOneCard]);
 
   const reclusterAll = useCallback(() => {
     setClusterState('re-clustering');
@@ -347,15 +348,62 @@ export const FloatingBubbles = () => {
     });
 
     return () => unsubscribe();
-  }, [scrollYProgress, clusterState, lastScrollY, startAutoRelease, reclusterAll]);
+  }, [scrollYProgress, clusterState, lastScrollY, startAutoRelease, stopAutoRelease, reclusterAll]);
+
+  const releaseMaintainerCard = useCallback(() => {
+    // Show "DON'T!" text
+    setBoomTextContent("DON'T!");
+    setShowBoomText(true);
+    setTimeout(() => setShowBoomText(false), 1000);
+
+    // Find and release deltakosh (maintainer) card to center
+    setBubbles((prev) => {
+      const maintainerIndex = prev.findIndex((b) =>
+        b.state === 'clustered' && b.author.name.toLowerCase().includes('deltakosh')
+      );
+
+      if (maintainerIndex === -1) return prev;
+
+      const updated = [...prev];
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      // Place in center of screen
+      updated[maintainerIndex] = {
+        ...updated[maintainerIndex],
+        physics: {
+          ...updated[maintainerIndex].physics,
+          position: { x: vw * 0.5, y: vh * 0.5 },
+          velocity: { x: 0, y: 0 },
+        },
+        state: 'scattered' as BubbleState,
+      };
+
+      return updated;
+    });
+  }, []);
 
   const handleClusterClick = useCallback(() => {
     if (clusterState === 'clustered') {
       triggerBoom();
     } else {
-      releaseOneCard();
+      // Check if we should show maintainer card
+      const visibleCount = bubbles.filter((b) =>
+        b.state === 'scattered' || b.state === 'dragging' || b.state === 'returning'
+      ).length;
+
+      const hasMaintainerVisible = bubbles.some((b) =>
+        (b.state === 'scattered' || b.state === 'dragging' || b.state === 'returning') &&
+        b.author.name.toLowerCase().includes('deltakosh')
+      );
+
+      if (!hasMaintainerVisible && visibleCount < MAX_VISIBLE_CARDS) {
+        releaseMaintainerCard();
+      } else {
+        releaseOneCard();
+      }
     }
-  }, [clusterState, triggerBoom, releaseOneCard]);
+  }, [clusterState, triggerBoom, releaseOneCard, releaseMaintainerCard, bubbles]);
 
   const clusteredCount = bubbles.filter((b) => b.state === 'clustered').length;
 
@@ -375,7 +423,7 @@ export const FloatingBubbles = () => {
             exit={{ opacity: 0, scale: 3 }}
             transition={{ duration: 1, ease: 'easeOut' }}
           >
-            💥 BOOM!
+            {boomTextContent}
           </motion.div>
         )}
       </AnimatePresence>
@@ -532,8 +580,13 @@ const FloatingBubble = ({ bubble, setBubbles }: FloatingBubbleProps) => {
     },
   };
 
-  const baseStyle = platformStyles[bubble.source.platform];
   const isBoomBubble = bubble.author.name.toLowerCase().includes('deltakosh');
+  const baseStyle = isBoomBubble
+    ? {
+        background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+        border: '2px solid #ef4444',
+      }
+    : platformStyles[bubble.source.platform];
 
   // Determine animation props based on bubble state
   const getAnimationProps = () => {
