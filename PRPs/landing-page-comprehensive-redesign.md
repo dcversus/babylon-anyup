@@ -1450,9 +1450,19 @@ const plugin = new AnyUpPlugin({
 - [x] **IntersectionObserver integration**: Triggers on community section scroll into view
 - [x] **Auto-stop feature**: Timer stops if user scrolls away from community section
 
-### 🟡 In Progress
-- [ ] Add slide-specific bubble pop-out behavior (different slides release different bubbles based on keywords)
-- [ ] Implement 3s wait + 5s return-to-cluster animation
+- [x] **Return-to-cluster animation**: 3s wait + 5s smooth ease-in-out cubic return (commit 5eaf87d)
+- [x] **Stationary detection**: Bubbles detect when velocity < 0.1 and start wait timer
+- [x] **Keywords infrastructure**: Added keyword arrays to comments for future slide-specific filtering
+
+### 🟡 In Progress (AQA Testing Phase)
+- [ ] **CRITICAL: Browser testing required** - Test all animations and interactions manually (http://localhost:8080)
+- [ ] Validate bubble clustering at right side (85vw, 50vh)
+- [ ] Validate deltakosh special bubble (2x size, releases LAST)
+- [ ] Validate BOOM animation triggers correctly
+- [ ] Validate 3s wait + 5s return animation works smoothly
+- [ ] Validate timed auto-release (30s intervals, stops after 2min)
+- [ ] Add remaining slide-specific observers (Slide 2, 4, 5, 6)
+- [ ] Complete keyword tagging for all 52+ comments
 - [ ] Add remaining Babylon.js scenes (2, 4, 6)
 - [ ] Complete Slide2 with coordinate system grid
 - [ ] Complete Slide4 with performance metrics
@@ -1469,6 +1479,269 @@ const plugin = new AnyUpPlugin({
 - [ ] Add GitHub star widget
 - [ ] Run full quality checks
 - [ ] Deploy to production
+
+---
+
+## 🧪 AQA TEST PLAN (MANUAL BROWSER TESTING)
+
+### Test Server
+- **URL**: http://localhost:8080
+- **Command**: `cd docs && python3 -m http.server 8080`
+- **Browser**: Chrome/Firefox/Safari (test all three)
+
+### Test Environment Checklist
+- [ ] Dev server running
+- [ ] Browser cache cleared (Cmd+Shift+R / Ctrl+Shift+R)
+- [ ] Browser console open (F12) to check for errors
+- [ ] Network tab monitoring for 404s
+- [ ] Responsive design tester ready (different screen sizes)
+
+---
+
+### TEST 1: Bubble Cluster Positioning
+**Expected**: Bubbles cluster at right side of screen (85vw, 50vh)
+
+**Steps**:
+1. Open http://localhost:8080 in browser
+2. Wait for page load (bubbles should appear)
+3. Observe initial bubble cluster position
+
+**Pass Criteria**:
+- ✅ Cluster appears on RIGHT side of screen (not center)
+- ✅ Cluster center approximately at 85% viewport width
+- ✅ Cluster center approximately at 50% viewport height
+- ✅ All 52+ bubbles visible in cluster
+- ✅ No console errors
+
+---
+
+### TEST 2: deltakosh Special Bubble
+**Expected**: One bubble is 2x larger with "Babylon.js Maintainer" badge
+
+**Steps**:
+1. Locate the largest bubble in the cluster
+2. Read the text (should mention "Y up" and "Z up")
+3. Check for green "Babylon.js Maintainer" badge
+
+**Pass Criteria**:
+- ✅ One bubble significantly larger than others (2x size: ~160-240px diameter)
+- ✅ Text reads: "This is intentional because Babylon.js uses a system with Y up while Blender uses a system with Z up"
+- ✅ Green gradient badge says "Babylon.js Maintainer"
+- ✅ Author shown as "deltakosh"
+- ✅ Special bubble has enhanced glow/border
+
+---
+
+### TEST 3: BOOM Animation
+**Expected**: "💥 BOOM!" text appears when scrolling to community section
+
+**Steps**:
+1. Scroll down to "Community" section (3rd section)
+2. Watch for BOOM animation trigger
+3. Observe animation sequence
+
+**Pass Criteria**:
+- ✅ "💥 BOOM!" text appears at cluster center when community section enters viewport
+- ✅ Text is large (8rem font size) with red glow
+- ✅ Animation: scale 0.5 → 1.2 → 0.9 → 1.1 → 1 → 1.5 with fade
+- ✅ Duration: ~1.5 seconds
+- ✅ Text disappears after animation
+- ✅ Bubbles start releasing after BOOM
+
+---
+
+### TEST 4: Timed Auto-Release System
+**Expected**: Bubbles release every 30 seconds, deltakosh LAST
+
+**Steps**:
+1. Scroll to community section
+2. Start timer when BOOM animation triggers
+3. Watch for bubble releases at 0s, 30s, 60s, 90s, 120s
+4. Observe which bubbles release (especially deltakosh)
+
+**Pass Criteria**:
+- ✅ First bubble releases immediately after BOOM (0 seconds)
+- ✅ Second bubble releases at 30 seconds
+- ✅ Third bubble releases at 60 seconds
+- ✅ Fourth bubble releases at 90 seconds (deltakosh should be this one)
+- ✅ No more releases after 120 seconds (2 minutes total)
+- ✅ deltakosh special bubble releases LAST
+- ✅ Bubbles target random screen edges (top/right/bottom/left)
+- ✅ System stops if user scrolls away from community section
+
+---
+
+### TEST 5: 3s Wait + 5s Return-to-Cluster Animation
+**Expected**: Bubbles wait 3s after stopping, then smoothly return over 5s
+
+**Steps**:
+1. Wait for a bubble to be released (from timed release or manual drag)
+2. Let bubble come to rest (velocity near zero)
+3. Start timer when bubble stops moving
+4. Observe behavior at 3 seconds
+5. Observe smooth return from 3s to 8s
+
+**Pass Criteria**:
+- ✅ Bubble waits approximately 3 seconds after becoming stationary
+- ✅ Bubble shrinks slightly (to 0.8 scale) when return starts
+- ✅ Smooth, curved path back to cluster (ease-in-out cubic easing)
+- ✅ Return animation takes approximately 5 seconds
+- ✅ Bubble rejoins cluster at correct position
+- ✅ Bubble returns to cluster scale (0.6) and reduced opacity (0.4)
+- ✅ No jittery movement during return
+
+---
+
+### TEST 6: Drag-and-Drop Interaction
+**Expected**: Bubbles can be dragged with mouse/touch, have inertia
+
+**Steps**:
+1. Hover over bubble drag handle (⋮⋮ icon)
+2. Click and hold, drag bubble around screen
+3. Release bubble with fast movement
+4. Observe physics behavior
+
+**Pass Criteria**:
+- ✅ Cursor changes to "grab" on drag handle hover
+- ✅ Bubble follows mouse/finger during drag
+- ✅ Bubble scales up slightly (1.1x) during drag
+- ✅ Bubble has inertia after release (continues moving)
+- ✅ Velocity gradually decreases due to friction
+- ✅ Bubble bounces off screen edges
+- ✅ Bubble collides with other bubbles (elastic collision)
+- ✅ After 3s stationary, bubble returns to cluster
+
+---
+
+### TEST 7: Bubble Collisions
+**Expected**: Bubbles bounce off each other with realistic physics
+
+**Steps**:
+1. Drag one bubble into another
+2. Release and observe collision
+3. Watch for separation and bounce
+
+**Pass Criteria**:
+- ✅ Bubbles don't overlap (maintain minimum distance)
+- ✅ Elastic collision (conservation of momentum)
+- ✅ Bubbles separate after collision
+- ✅ Small scale bounce effect (targetScale = 1.05)
+- ✅ Larger bubbles have more mass (affect collision differently)
+
+---
+
+### TEST 8: Boundary Collisions
+**Expected**: Bubbles bounce off screen edges
+
+**Steps**:
+1. Drag bubble to each edge (top, right, bottom, left)
+2. Release and watch bounce behavior
+
+**Pass Criteria**:
+- ✅ Bubble bounces off top edge
+- ✅ Bubble bounces off right edge
+- ✅ Bubble bounces off bottom edge
+- ✅ Bubble bounces off left edge
+- ✅ Velocity reduced by 30% on bounce (vx/vy *= -0.7)
+- ✅ Bubble stays within viewport bounds
+
+---
+
+### TEST 9: Click to Open Links
+**Expected**: Clicking bubble content opens GitHub/forum link in new tab
+
+**Steps**:
+1. Click on bubble content area (not drag handle)
+2. Verify new tab opens with correct URL
+3. Test multiple bubbles with different link types
+
+**Pass Criteria**:
+- ✅ Clicking bubble opens new browser tab
+- ✅ URL matches bubble metadata (GitHub issue, forum thread, etc.)
+- ✅ Click doesn't trigger if bubble was just dragged
+- ✅ Bubbles with url="#" don't open tabs
+
+---
+
+### TEST 10: Responsive Design
+**Expected**: Bubbles adapt to different screen sizes
+
+**Steps**:
+1. Test on desktop (1920x1080)
+2. Test on tablet (768x1024)
+3. Test on mobile (375x667)
+4. Resize browser window dynamically
+
+**Pass Criteria**:
+- ✅ Cluster position adapts to screen width (always 85vw)
+- ✅ Bubbles stay within viewport on resize
+- ✅ Touch events work on mobile (drag with finger)
+- ✅ No horizontal scroll on any screen size
+- ✅ Bubbles remain readable on mobile (text not too small)
+
+---
+
+### TEST 11: Performance
+**Expected**: Smooth 60fps animation with 52+ bubbles
+
+**Steps**:
+1. Open browser DevTools → Performance tab
+2. Start recording
+3. Drag multiple bubbles simultaneously
+4. Trigger explosion and observe
+5. Stop recording after 30 seconds
+
+**Pass Criteria**:
+- ✅ Consistent 60fps during normal animation
+- ✅ Frame time <16ms (60fps = 16.67ms per frame)
+- ✅ No frame drops during drag-and-drop
+- ✅ No memory leaks (memory usage stable over time)
+- ✅ CPU usage reasonable (<50% on modern hardware)
+
+---
+
+### TEST 12: Browser Console (No Errors)
+**Expected**: Zero console errors or warnings
+
+**Steps**:
+1. Open browser console (F12)
+2. Perform all above tests
+3. Monitor for errors, warnings, or network failures
+
+**Pass Criteria**:
+- ✅ Zero JavaScript errors
+- ✅ Zero CSS warnings
+- ✅ All resources load successfully (no 404s)
+- ✅ No CORS errors
+- ✅ No deprecation warnings
+
+---
+
+### AQA Sign-Off Checklist
+
+Before marking PRP as "Ready for Production":
+
+- [ ] All 12 tests above passed ✅
+- [ ] Tested on Chrome (latest)
+- [ ] Tested on Firefox (latest)
+- [ ] Tested on Safari (latest)
+- [ ] Tested on mobile device (iOS or Android)
+- [ ] Performance benchmarks met (60fps, <16ms frames)
+- [ ] Zero console errors
+- [ ] User experience feels smooth and polished
+- [ ] All animations trigger correctly
+- [ ] Drag-and-drop works flawlessly
+- [ ] No visual glitches or artifacts
+
+**AQA Engineer Notes Section** (fill after testing):
+```
+Date Tested: ____________________
+Browser: ________________________
+OS: _____________________________
+Pass Rate: _______ / 12 tests
+Critical Issues Found: __________
+Recommendations: ________________
+```
 
 ---
 
