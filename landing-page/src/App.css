@@ -29,9 +29,14 @@ html, body {
 
 .scene {
   width: 100%;
-  min-height: 100vh;
+  min-height: 92vh;
   position: relative;
   scroll-snap-align: start;
+}
+
+/* First slide takes full viewport to establish presence */
+.scene:first-child {
+  min-height: 100vh;
 }
 
 /* Optional: smooth scroll snapping (can be removed for completely free scroll) */

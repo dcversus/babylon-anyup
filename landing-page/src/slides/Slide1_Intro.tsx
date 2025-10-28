@@ -130,9 +130,14 @@ export const Slide1_Intro = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.8 }}
           >
-            <h3 className="install-title">Quick Start</h3>
+            <h3 className="install-title">⚡ Quick Start</h3>
             <div className="install-code-container">
-              <code className="install-code">npm install @dcversus/babylon-anyup</code>
+              <code
+                className="install-code"
+                style={{ userSelect: 'text', WebkitUserSelect: 'text', MozUserSelect: 'text' }}
+              >
+                npm install @dcversus/babylon-anyup
+              </code>
               <button
                 className="install-copy-btn"
                 onClick={handleCopyInstall}
@@ -153,7 +158,7 @@ export const Slide1_Intro = () => {
                 className="install-link"
               >
                 <span className="link-icon">⭐</span>
-                GitHub
+                <span>Star on GitHub</span>
               </a>
               <a
                 href="https://www.npmjs.com/package/@dcversus/babylon-anyup"
@@ -162,7 +167,7 @@ export const Slide1_Intro = () => {
                 className="install-link"
               >
                 <span className="link-icon">📦</span>
-                npm
+                <span>@dcversus/babylon-anyup</span>
               </a>
             </div>
           </motion.div>
