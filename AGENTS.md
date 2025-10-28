@@ -37,16 +37,20 @@ Agents communicate through **signals** - emotional indicators that convey urgenc
 
 #### Signal Reference Table
 
-| Signal | Strength | Meaning | When to Use |
-|--------|----------|---------|-------------|
-| **ATTENTION** | 10/10 | Critical blocker, accident, or production failure | Production down, security breach, impossible requirement |
-| **BLOCKED** | 9/10 | Cannot proceed without resolution | Missing dependency, conflicting requirements, external blocker |
-| **WORRIED** | 6/10 | Concern about approach or risk | Technical debt, performance concern, unclear requirement |
-| **UNCERTAIN** | 5/10 | Need clarification or validation | Ambiguous spec, multiple valid approaches, need decision |
-| **CONFIDENT** | 3/10 | Completed with high certainty | Straightforward implementation, well-tested, clear requirements |
-| **EXCITED** | 4/10 | Positive discovery or improvement | Found better approach, optimization opportunity, innovation |
-| **READY** | 2/10 | Prerequisites met, ready to proceed | DoR satisfied, research complete, tests passing |
-| **COMPLETE** | 1/10 | Work finished, validated, documented | All DoD items checked, quality gates passed |
+| Signal | Strength | Meaning | When to Use | Agent Type |
+|--------|----------|---------|-------------|------------|
+| **ATTENTION** | 10/10 | Critical blocker, accident, or production failure | Production down, security breach, impossible requirement | Any |
+| **BLOCKED** | 9/10 | Cannot proceed without resolution | Missing dependency, conflicting requirements, external blocker | Any |
+| **BROKEN** | 9/10 | Critical functionality not working | POST-RELEASE: API broken, major bugs, site down | QC |
+| **DEGRADED** | 7/10 | Performance degradation detected | POST-RELEASE: Slow loading, bundle size exceeded, errors | SRE |
+| **WORRIED** | 6/10 | Concern about approach or risk | Technical debt, performance concern, unclear requirement | Any |
+| **UNCERTAIN** | 5/10 | Need clarification or validation | Ambiguous spec, multiple valid approaches, need decision | system-analyst |
+| **EXCITED** | 4/10 | Positive discovery or improvement | Found better approach, optimization opportunity, innovation | developer |
+| **CONFIDENT** | 3/10 | Completed with high certainty | Straightforward implementation, well-tested, clear requirements | developer, QC, SRE |
+| **READY** | 2/10 | Prerequisites met, ready to proceed | DoR satisfied, research complete, tests passing | system-analyst |
+| **DEPLOYED** | 2/10 | Successfully deployed to production | POST-RELEASE: Deployment health verified | SRE |
+| **VALIDATED** | 2/10 | Quality validation passed | POST-RELEASE: All QC checks passed | QC |
+| **COMPLETE** | 1/10 | Work finished, validated, documented | All DoD items checked, quality gates passed | coordinator |
 
 **Rules:**
 - Use 1-2 signals maximum per PRP update
@@ -1261,6 +1265,189 @@ npm run validate     # All quality checks
 - **Specialize** - Each agent focuses on their domain
 - **Converge** - All agents update same PRP
 - **Execute** - Follow PRP during implementation
+
+---
+
+## 🚀 POST-RELEASE WORKFLOW
+
+### Overview
+
+After merging to main and before/after publishing a release, execute the POST-RELEASE checklist with specialized agents to ensure production readiness and quality.
+
+### POST-RELEASE Agents
+
+#### 1. **SRE (Site Reliability Engineer) Agent**
+
+**Responsibilities:**
+- Validate deployment health
+- Check bundle size and performance
+- Verify CDN/npm package availability
+- Monitor error rates and metrics
+- Validate documentation links
+- Check GitHub Pages deployment
+
+**Checklist:**
+```markdown
+## SRE Post-Release Checklist
+
+### Deployment Validation
+- [ ] npm package published and accessible
+- [ ] GitHub Pages deployed successfully
+- [ ] All documentation links working
+- [ ] CDN links resolving correctly
+
+### Performance Validation
+- [ ] Bundle size within targets (<10KB minified)
+- [ ] Landing page Lighthouse score >90
+- [ ] No console errors in production
+- [ ] All scripts loading correctly
+
+### Monitoring
+- [ ] No error spikes in npm downloads
+- [ ] GitHub Actions workflows passing
+- [ ] CI/CD pipeline healthy
+
+### Documentation
+- [ ] README.md links verified
+- [ ] CHANGELOG.md updated
+- [ ] GitHub release created with notes
+```
+
+**Signal to Leave:** CONFIDENT (3/10) if all checks pass, WORRIED (6/10) if issues found
+
+---
+
+#### 2. **QC (Quality Control) Agent**
+
+**Responsibilities:**
+- Validate user-facing quality
+- Test installation process
+- Verify API examples work
+- Check cross-browser compatibility
+- Validate mobile responsiveness
+- Test all interactive features
+
+**Checklist:**
+```markdown
+## QC Post-Release Checklist
+
+### Installation Testing
+- [ ] `npm install @dcversus/babylon-anyup` succeeds
+- [ ] TypeScript types available
+- [ ] No peer dependency warnings
+
+### API Testing
+- [ ] Example code from README works
+- [ ] All exported types accessible
+- [ ] Plugin initialization succeeds
+- [ ] Coordinate transformations accurate
+
+### Landing Page Testing
+- [ ] All sections render correctly
+- [ ] Interactive demos functional
+- [ ] Mobile responsive (480px, 768px, 1024px)
+- [ ] Cross-browser tested (Chrome, Firefox, Safari, Edge)
+- [ ] All links clickable and working
+- [ ] Copy buttons functional
+
+### User Experience
+- [ ] No visual glitches
+- [ ] Animations smooth (60fps)
+- [ ] Loading times acceptable
+- [ ] Error messages clear
+```
+
+**Signal to Leave:** CONFIDENT (3/10) if quality excellent, UNCERTAIN (5/10) if minor issues, WORRIED (6/10) if major issues
+
+---
+
+### POST-RELEASE Workflow Execution
+
+**When to Execute:**
+- After merging feature branch to main
+- Before publishing npm release
+- After publishing (validation)
+
+**How to Execute:**
+
+```bash
+# 1. Merge feature branch to main (squash commit)
+git checkout main
+git merge --squash feature/landing-page
+git commit -m "feat: comprehensive landing page redesign"
+git push origin main
+
+# 2. Launch POST-RELEASE agents in parallel
+# (Both agents work simultaneously)
+```
+
+**Agent Prompts:**
+
+```typescript
+// Launch SRE agent
+Task({
+  subagent_type: "general-purpose",
+  description: "SRE: POST-RELEASE validation",
+  prompt: `You are an SRE (Site Reliability Engineer) agent.
+
+  Execute the POST-RELEASE SRE checklist for babylon-anyup after main branch merge.
+
+  Check:
+  1. Deployment health (GitHub Pages, npm if published)
+  2. Bundle size and performance metrics
+  3. Documentation link validity
+  4. CI/CD pipeline status
+  5. No console errors
+
+  Leave a signal in the relevant PRP:
+  - CONFIDENT (3/10) if all checks pass
+  - WORRIED (6/10) if issues found
+
+  Return: Summary of checks with pass/fail status`
+});
+
+// Launch QC agent
+Task({
+  subagent_type: "general-purpose",
+  description: "QC: POST-RELEASE quality validation",
+  prompt: `You are a QC (Quality Control) agent.
+
+  Execute the POST-RELEASE QC checklist for babylon-anyup after main branch merge.
+
+  Test:
+  1. Installation process
+  2. API examples from README
+  3. Landing page functionality
+  4. Cross-browser compatibility
+  5. Mobile responsiveness
+  6. All interactive features
+
+  Leave a signal in the relevant PRP:
+  - CONFIDENT (3/10) if quality excellent
+  - UNCERTAIN (5/10) if minor issues
+  - WORRIED (6/10) if major issues
+
+  Return: Summary of tests with pass/fail status`
+});
+```
+
+**After Both Agents Complete:**
+
+1. **Review signals** - Coordinator scans PRP for SRE and QC signals
+2. **Address issues** - If WORRIED signals, fix before publishing
+3. **Publish release** - If both CONFIDENT, proceed with npm publish
+4. **Update PRP status** - Mark as ✅ Complete with deployment date
+
+---
+
+### NEW SIGNALS for POST-RELEASE
+
+| Signal | Strength | Agent | Meaning |
+|--------|----------|-------|---------|
+| **DEPLOYED** | 2/10 | SRE | Successfully deployed to production |
+| **VALIDATED** | 2/10 | QC | Quality validation passed |
+| **DEGRADED** | 7/10 | SRE | Performance degradation detected |
+| **BROKEN** | 9/10 | QC | Critical functionality not working |
 
 ---
 
