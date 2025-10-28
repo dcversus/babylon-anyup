@@ -358,6 +358,13 @@ class BubbleManager {
         this.highlightedBubbles = [];
         this.boomElement = null;
 
+        // Timed auto-release system (for community section)
+        this.timedReleaseActive = false;
+        this.releaseTimer = null;
+        this.releaseCount = 0;
+        this.maxReleases = 4; // 4 releases over 2 minutes (every 30s)
+        this.releaseInterval = 30000; // 30 seconds
+
         this.init();
     }
 
@@ -383,16 +390,19 @@ class BubbleManager {
         // Resize handler
         window.addEventListener('resize', () => this.handleResize());
 
-        // Community section click handler
+        // Community section - timed auto-release (30s intervals, 2min total)
         const communitySection = document.getElementById('community');
         if (communitySection) {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    if (entry.isIntersecting && this.isClustered) {
-                        // Explode bubbles when scrolling to community section
+                    if (entry.isIntersecting && this.isClustered && !this.timedReleaseActive) {
+                        // Start timed auto-release system
                         setTimeout(() => {
-                            this.explodeBubbles();
+                            this.startTimedRelease();
                         }, 500);
+                    } else if (!entry.isIntersecting && this.timedReleaseActive) {
+                        // Stop timed release if user scrolls away
+                        this.stopTimedRelease();
                     }
                 });
             }, { threshold: 0.3 });
@@ -480,6 +490,91 @@ class BubbleManager {
         setTimeout(() => {
             this.boomElement.classList.remove('boom-active');
         }, 1500);
+    }
+
+    startTimedRelease() {
+        if (this.timedReleaseActive) return;
+
+        this.timedReleaseActive = true;
+        this.releaseCount = 0;
+        this.isClustered = false;
+
+        // Show BOOM animation at start
+        this.showBoom();
+
+        // Release first bubble immediately
+        this.releaseOneBubble();
+        this.releaseCount++;
+
+        // Set up interval for subsequent releases
+        this.releaseTimer = setInterval(() => {
+            if (this.releaseCount < this.maxReleases) {
+                this.releaseOneBubble();
+                this.releaseCount++;
+            } else {
+                // Stop after max releases (2 minutes)
+                this.stopTimedRelease();
+            }
+        }, this.releaseInterval);
+    }
+
+    stopTimedRelease() {
+        if (this.releaseTimer) {
+            clearInterval(this.releaseTimer);
+            this.releaseTimer = null;
+        }
+        this.timedReleaseActive = false;
+    }
+
+    releaseOneBubble() {
+        // Find next clustered bubble to release (skip already released ones)
+        const clusteredBubbles = this.bubbles.filter(b => b.isInCluster);
+        if (clusteredBubbles.length === 0) return;
+
+        // Release the deltakosh bubble LAST (if it's still in cluster)
+        let bubbleToRelease;
+        if (this.releaseCount === this.maxReleases - 1) {
+            // Last release - try to find deltakosh bubble
+            bubbleToRelease = clusteredBubbles.find(b => b.isSpecial);
+        }
+
+        // If no special bubble or not last release, pick a random one
+        if (!bubbleToRelease) {
+            // Exclude special bubble until last release
+            const regularBubbles = clusteredBubbles.filter(b => !b.isSpecial);
+            if (regularBubbles.length > 0) {
+                const randomIndex = Math.floor(Math.random() * regularBubbles.length);
+                bubbleToRelease = regularBubbles[randomIndex];
+            } else {
+                // If only special bubble left, release it
+                bubbleToRelease = clusteredBubbles[0];
+            }
+        }
+
+        if (bubbleToRelease) {
+            bubbleToRelease.releaseFromCluster();
+
+            // Target position: random edge of screen
+            const edge = Math.floor(Math.random() * 4); // 0=top, 1=right, 2=bottom, 3=left
+            switch (edge) {
+                case 0: // Top
+                    bubbleToRelease.targetX = Math.random() * window.innerWidth;
+                    bubbleToRelease.targetY = 50;
+                    break;
+                case 1: // Right
+                    bubbleToRelease.targetX = window.innerWidth - 50;
+                    bubbleToRelease.targetY = Math.random() * window.innerHeight;
+                    break;
+                case 2: // Bottom
+                    bubbleToRelease.targetX = Math.random() * window.innerWidth;
+                    bubbleToRelease.targetY = window.innerHeight - 50;
+                    break;
+                case 3: // Left
+                    bubbleToRelease.targetX = 50;
+                    bubbleToRelease.targetY = Math.random() * window.innerHeight;
+                    break;
+            }
+        }
     }
 
     handleScroll() {
