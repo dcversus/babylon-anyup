@@ -47,6 +47,46 @@ Complete redesign of the babylon-anyup landing page with free continuous scrolli
 
 ---
 
+### 2025-10-28 - ORCHESTRATOR - Signal: ATTENTION (10/10)
+
+**Comment:** 🚨 CRITICAL BLOCKER - User requested implementation of both landing page PRPs (6-8 weeks work) without clarifying architecture approach. This PRP describes React/TypeScript/Vite architecture (52 bubbles, physics), but actual `docs/` is vanilla HTML/JS. CANNOT PROCEED without admin clarification.
+
+**Context:**
+
+**Incident Details:**
+- **Severity**: MEDIUM (HIGH risk of wasted effort)
+- **Affected PRPs**: Landing Page Comprehensive Redesign, Landing Page Phase 2
+- **Estimated Impact**: 6-8 weeks of development at risk
+- **Root Cause**: PRP written aspirationally (future state) vs descriptively (current state)
+
+**Two Possible Interpretations:**
+1. **Enhance Existing HTML Landing Page**: Add features to current `docs/` vanilla JS implementation
+2. **Complete React Rewrite**: Start from scratch with React/TypeScript/Vite/Framer Motion
+
+**Why This Blocks Work:**
+- Developer branch created but no code can be written until approach clarified
+- Feature/landing-page-comprehensive branch exists but is idle
+- Both PRPs reference conflicting architectures
+- 210+ checklist items in PRP may not apply to HTML implementation
+
+**Admin Decision Required:**
+1. **Option A**: Enhance existing HTML/JS landing page (faster, lower risk)
+   - Update PRP to document CURRENT state
+   - Remove React-specific requirements
+   - Focus on vanilla JS physics and animations
+
+2. **Option B**: Complete React rewrite (slower, higher quality)
+   - Acknowledge PRP describes future state
+   - Create detailed implementation plan for React migration
+   - Estimate realistic timeline (4-6 weeks minimum)
+   - Consider if this is worth the investment
+
+**ORCHESTRATOR Recommendation**: Choose Option A (HTML enhancement) unless React rewrite has compelling business justification. Current HTML implementation is functional and deployed - enhancing it is lower risk than rewrite.
+
+**Action Required**: @admin MUST clarify architecture approach before any code is written. All development blocked until decision made.
+
+---
+
 ## 📊 CURRENT STATE ANALYSIS (as of 2025-10-28)
 
 ### ✅ IMPLEMENTED FEATURES
