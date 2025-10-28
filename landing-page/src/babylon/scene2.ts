@@ -94,20 +94,70 @@ export const createScene2 = (scene: Scene) => {
   // Start the animation
   scene.beginAnimation(container, 0, 240, true);
 
-  // Add "WRONG!" text that appears when model falls
-  // We'll do this with a mesh instead of text for performance
-  let warningVisible = false;
-  scene.registerBeforeRender(() => {
-    const currentFrame = scene.getAnimationRatio() * 240;
-    const shouldShow = currentFrame > 40 && currentFrame < 170;
+  // Create coordinate axes to show the problem
+  // X axis (Red)
+  const xAxis = MeshBuilder.CreateLines('xAxis', {
+    points: [Vector3.Zero(), new Vector3(3, 0, 0)]
+  }, scene);
+  xAxis.color = new Color3(1, 0, 0);
 
-    if (shouldShow && !warningVisible) {
-      warningVisible = true;
-      // Could add warning indicator here
-    } else if (!shouldShow && warningVisible) {
-      warningVisible = false;
-    }
-  });
+  const xLabel = MeshBuilder.CreateCylinder('xLabel', {
+    diameter: 0.2,
+    height: 0.5
+  }, scene);
+  xLabel.position = new Vector3(3.5, 0, 0);
+  const xMaterial = new StandardMaterial('xMaterial', scene);
+  xMaterial.emissiveColor = new Color3(1, 0, 0);
+  xLabel.material = xMaterial;
+
+  // Y axis (Green) - This is "up" in Babylon.js
+  const yAxis = MeshBuilder.CreateLines('yAxis', {
+    points: [Vector3.Zero(), new Vector3(0, 3, 0)]
+  }, scene);
+  yAxis.color = new Color3(0, 1, 0);
+
+  const yLabel = MeshBuilder.CreateCylinder('yLabel', {
+    diameter: 0.2,
+    height: 0.5
+  }, scene);
+  yLabel.position = new Vector3(0, 3.5, 0);
+  const yMaterial = new StandardMaterial('yMaterial', scene);
+  yMaterial.emissiveColor = new Color3(0, 1, 0);
+  yLabel.material = yMaterial;
+
+  // Z axis (Blue)
+  const zAxis = MeshBuilder.CreateLines('zAxis', {
+    points: [Vector3.Zero(), new Vector3(0, 0, 3)]
+  }, scene);
+  zAxis.color = new Color3(0, 0, 1);
+
+  const zLabel = MeshBuilder.CreateCylinder('zLabel', {
+    diameter: 0.2,
+    height: 0.5
+  }, scene);
+  zLabel.position = new Vector3(0, 0, 3.5);
+  zLabel.rotation.x = Math.PI / 2;
+  const zMaterial = new StandardMaterial('zMaterial', scene);
+  zMaterial.emissiveColor = new Color3(0, 0, 1);
+  zLabel.material = zMaterial;
+
+  // Add pulsing animation to Y axis to emphasize it's "up" in Babylon.js
+  const yAxisPulse = new Animation(
+    'yAxisPulse',
+    'scaling',
+    30,
+    Animation.ANIMATIONTYPE_VECTOR3,
+    Animation.ANIMATIONLOOPMODE_CYCLE
+  );
+
+  const yPulseKeys = [];
+  yPulseKeys.push({ frame: 0, value: new Vector3(1, 1, 1) });
+  yPulseKeys.push({ frame: 30, value: new Vector3(1.5, 1.5, 1.5) });
+  yPulseKeys.push({ frame: 60, value: new Vector3(1, 1, 1) });
+
+  yAxisPulse.setKeys(yPulseKeys);
+  yLabel.animations.push(yAxisPulse);
+  scene.beginAnimation(yLabel, 0, 60, true);
 
   return scene;
 };

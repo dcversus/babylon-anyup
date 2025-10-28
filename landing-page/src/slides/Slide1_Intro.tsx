@@ -1,52 +1,195 @@
 import { motion } from 'framer-motion';
-import { BabylonScene } from '../components/BabylonScene';
-import { CommentBubble } from '../components/CommentBubble';
-import { createScene1 } from '../babylon/scene1';
-import { commentsData } from '../data/comments';
+import { useState, useEffect } from 'react';
 import './Slide.css';
+import './Slide1_Intro.css';
 
 export const Slide1_Intro = () => {
-  const slideComments = commentsData.filter((c) => c.position.slide === 1);
+  const [switcherEnabled, setSwitcherEnabled] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // Auto-animate switcher from OFF to ON after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSwitcherEnabled(true);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleCopyInstall = () => {
+    navigator.clipboard.writeText('npm install @dcversus/babylon-anyup');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
-    <div className="slide slide-1">
-      <div className="slide-content">
-        {/* Babylon.js Scene - Left side */}
-        <div className="scene-container">
-          <BabylonScene onSceneReady={createScene1} />
-        </div>
-
-        {/* Text Content - Right side */}
+    <div className="slide slide-1 intro-slide">
+      <div className="slide-content intro-content">
+        {/* Main Content - Centered */}
         <motion.div
-          className="text-content"
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          className="intro-main"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
         >
-          <h1 className="slide-title">Coordinate Systems in 3D</h1>
-          <h2 className="slide-subtitle">Y-up vs Z-up: The Fundamental Divide</h2>
-          <div className="slide-description">
-            <p>
-              In the world of 3D graphics, there are two primary coordinate system conventions:
+          {/* Floating Container */}
+          <motion.div
+            className="intro-floating-container"
+            animate={{
+              y: [0, -15, 0],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
+            {/* Rotating Figure */}
+            <motion.div
+              className="intro-figure"
+              animate={{
+                rotateY: switcherEnabled ? 360 : 0,
+                scale: switcherEnabled ? 1.1 : 1,
+              }}
+              transition={{
+                rotateY: {
+                  duration: switcherEnabled ? 2 : 0,
+                  ease: 'easeOut',
+                },
+                scale: {
+                  duration: 0.5,
+                  ease: 'easeOut',
+                },
+              }}
+            >
+              <div className="figure-cube">
+                <div className="cube-face cube-front">Z</div>
+                <div className="cube-face cube-back">↑</div>
+                <div className="cube-face cube-right">✓</div>
+                <div className="cube-face cube-left">✓</div>
+                <div className="cube-face cube-top">✓</div>
+                <div className="cube-face cube-bottom">✓</div>
+              </div>
+            </motion.div>
+
+            {/* Switcher */}
+            <motion.div
+              className="intro-switcher"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+            >
+              <motion.button
+                className={`switcher-button ${switcherEnabled ? 'enabled' : ''}`}
+                onClick={() => setSwitcherEnabled(!switcherEnabled)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="switcher-label">Enable Z-up!</span>
+                <div className="switcher-track">
+                  <motion.div
+                    className="switcher-thumb"
+                    animate={{
+                      x: switcherEnabled ? 28 : 0,
+                    }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 500,
+                      damping: 30,
+                    }}
+                  />
+                </div>
+                <span className={`switcher-status ${switcherEnabled ? 'on' : 'off'}`}>
+                  {switcherEnabled ? 'ON' : 'OFF'}
+                </span>
+              </motion.button>
+            </motion.div>
+          </motion.div>
+
+          {/* Title and Description */}
+          <motion.div
+            className="intro-text"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
+            <h1 className="intro-title">
+              <span className="title-babylon">babylon</span>
+              <span className="title-anyup">-anyup</span>
+            </h1>
+            <p className="intro-description">
+              A Babylon.js plugin for seamless Z-up coordinate system compatibility.
+              <br />
+              Born from building <a href="https://github.com/dcversus/edgecraft" target="_blank" rel="noopener noreferrer" className="intro-link">Edge Craft</a> - bringing Warcraft 3 & StarCraft 2 to the web.
             </p>
-            <ul className="feature-list">
-              <li>
-                <strong>Y-up:</strong> Used by Babylon.js, Unity, and many game engines
-              </li>
-              <li>
-                <strong>Z-up:</strong> Used by Blender, 3ds Max, Warcraft 3, and CAD software
-              </li>
-            </ul>
-            <p className="highlight">
-              This fundamental difference causes massive friction when importing models and assets.
-            </p>
-          </div>
+          </motion.div>
+
+          {/* Installation Guide */}
+          <motion.div
+            className="intro-install"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.8 }}
+          >
+            <h3 className="install-title">Quick Start</h3>
+            <div className="install-code-container">
+              <code className="install-code">npm install @dcversus/babylon-anyup</code>
+              <button
+                className="install-copy-btn"
+                onClick={handleCopyInstall}
+                title="Copy to clipboard"
+              >
+                {copied ? (
+                  <span className="copy-icon">✓</span>
+                ) : (
+                  <span className="copy-icon">📋</span>
+                )}
+              </button>
+            </div>
+            <div className="install-links">
+              <a
+                href="https://github.com/dcversus/babylon-anyup"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="install-link"
+              >
+                <span className="link-icon">⭐</span>
+                GitHub
+              </a>
+              <a
+                href="https://www.npmjs.com/package/@dcversus/babylon-anyup"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="install-link"
+              >
+                <span className="link-icon">📦</span>
+                npm
+              </a>
+            </div>
+          </motion.div>
         </motion.div>
 
-        {/* Floating Comment Bubbles */}
-        {slideComments.map((comment) => (
-          <CommentBubble key={comment.id} comment={comment} scale={0.8} />
-        ))}
+        {/* Scroll Indicator */}
+        <motion.div
+          className="scroll-indicator"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2, duration: 1 }}
+        >
+          <motion.div
+            className="scroll-arrow"
+            animate={{
+              y: [0, 10, 0],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
+            ↓
+          </motion.div>
+          <span className="scroll-text">Scroll to explore</span>
+        </motion.div>
       </div>
     </div>
   );

@@ -1,12 +1,9 @@
 import { motion } from 'framer-motion';
 import { BabylonScene } from '../components/BabylonScene';
-import { CommentBubble } from '../components/CommentBubble';
 import { createScene2 } from '../babylon/scene2';
-import { commentsData } from '../data/comments';
 import './Slide.css';
 
 export const Slide2_Examples = () => {
-  const slideComments = commentsData.filter((c) => c.position.slide === 2);
 
   const zUpSoftware = [
     { name: 'Warcraft 3', color: '#c41e3a' },
@@ -72,11 +69,6 @@ export const Slide2_Examples = () => {
           <BabylonScene onSceneReady={createScene2} />
           <div className="scene-label">Watch the model fall over →</div>
         </div>
-
-        {/* Floating Comment Bubbles */}
-        {slideComments.map((comment) => (
-          <CommentBubble key={comment.id} comment={comment} scale={0.8} />
-        ))}
       </div>
     </div>
   );

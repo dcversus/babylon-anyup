@@ -1,0 +1,433 @@
+/* Slide 1 - Intro Slide */
+.intro-slide {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.intro-content {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 40px 80px;
+}
+
+.intro-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+  max-width: 900px;
+  width: 100%;
+  z-index: 2;
+}
+
+/* Floating Container */
+.intro-floating-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* 3D Rotating Figure */
+.intro-figure {
+  perspective: 1000px;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.figure-cube {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  transform-style: preserve-3d;
+  animation: rotateCube 20s infinite linear;
+}
+
+@keyframes rotateCube {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  100% {
+    transform: rotateX(360deg) rotateY(360deg);
+  }
+}
+
+.cube-face {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.3) 0%, rgba(124, 58, 237, 0.3) 100%);
+  border: 2px solid rgba(88, 101, 242, 0.5);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(88, 101, 242, 0.2);
+}
+
+.cube-front  { transform: translateZ(75px); }
+.cube-back   { transform: rotateY(180deg) translateZ(75px); }
+.cube-right  { transform: rotateY(90deg) translateZ(75px); }
+.cube-left   { transform: rotateY(-90deg) translateZ(75px); }
+.cube-top    { transform: rotateX(90deg) translateZ(75px); }
+.cube-bottom { transform: rotateX(-90deg) translateZ(75px); }
+
+/* Switcher */
+.intro-switcher {
+  display: flex;
+  justify-content: center;
+}
+
+.switcher-button {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  color: white;
+}
+
+.switcher-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(88, 101, 242, 0.3);
+}
+
+.switcher-button.enabled {
+  background: rgba(88, 101, 242, 0.2);
+  border-color: #5865F2;
+  box-shadow: 0 8px 32px rgba(88, 101, 242, 0.4);
+}
+
+.switcher-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.switcher-track {
+  position: relative;
+  width: 56px;
+  height: 28px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 14px;
+  transition: background 0.3s ease;
+}
+
+.switcher-button.enabled .switcher-track {
+  background: rgba(88, 101, 242, 0.5);
+}
+
+.switcher-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.switcher-status {
+  font-size: 1rem;
+  font-weight: 700;
+  min-width: 40px;
+  text-align: center;
+}
+
+.switcher-status.off {
+  color: #94a3b8;
+}
+
+.switcher-status.on {
+  color: #22c55e;
+}
+
+/* Title and Description */
+.intro-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.intro-title {
+  font-size: 5rem;
+  font-weight: 900;
+  line-height: 1;
+  margin: 0;
+}
+
+.title-babylon {
+  background: linear-gradient(135deg, #ffffff 0%, #cbd5e0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.title-anyup {
+  background: linear-gradient(135deg, #5865F2 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.intro-description {
+  font-size: 1.4rem;
+  line-height: 1.6;
+  color: #cbd5e0;
+  max-width: 700px;
+  margin: 0;
+}
+
+.intro-link {
+  color: #5865F2;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.intro-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #5865F2;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.intro-link:hover {
+  color: #7c3aed;
+}
+
+.intro-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* Installation Guide */
+.intro-install {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 600px;
+}
+
+.install-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+.install-code-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(88, 101, 242, 0.3);
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.install-code-container:hover {
+  border-color: rgba(88, 101, 242, 0.6);
+}
+
+.install-code {
+  flex: 1;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font-size: 1rem;
+  color: #e2e8f0;
+  background: transparent;
+  border: none;
+  user-select: all;
+}
+
+.install-copy-btn {
+  padding: 0.5rem;
+  background: rgba(88, 101, 242, 0.2);
+  border: 1px solid rgba(88, 101, 242, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.install-copy-btn:hover {
+  background: rgba(88, 101, 242, 0.3);
+  border-color: rgba(88, 101, 242, 0.5);
+  transform: scale(1.05);
+}
+
+.copy-icon {
+  font-size: 1.2rem;
+}
+
+.install-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.install-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #e2e8f0;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.install-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(88, 101, 242, 0.2);
+}
+
+.link-icon {
+  font-size: 1.2rem;
+}
+
+/* Scroll Indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2;
+}
+
+.scroll-arrow {
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.scroll-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 1024px) {
+  .intro-title {
+    font-size: 3.5rem;
+  }
+
+  .intro-description {
+    font-size: 1.2rem;
+  }
+
+  .intro-install {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .intro-slide {
+    height: 100vh;
+  }
+
+  .intro-content {
+    padding: 30px 20px;
+  }
+
+  .intro-main {
+    gap: 2rem;
+  }
+
+  .figure-cube,
+  .cube-face {
+    width: 120px;
+    height: 120px;
+  }
+
+  .cube-face {
+    font-size: 3rem;
+  }
+
+  .cube-front  { transform: translateZ(60px); }
+  .cube-back   { transform: rotateY(180deg) translateZ(60px); }
+  .cube-right  { transform: rotateY(90deg) translateZ(60px); }
+  .cube-left   { transform: rotateY(-90deg) translateZ(60px); }
+  .cube-top    { transform: rotateX(90deg) translateZ(60px); }
+  .cube-bottom { transform: rotateX(-90deg) translateZ(60px); }
+
+  .intro-title {
+    font-size: 2.5rem;
+  }
+
+  .intro-description {
+    font-size: 1rem;
+  }
+
+  .install-code {
+    font-size: 0.85rem;
+  }
+
+  .install-links {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .install-link {
+    justify-content: center;
+  }
+
+  .switcher-button {
+    padding: 0.75rem 1.5rem;
+  }
+
+  .switcher-label {
+    font-size: 1rem;
+  }
+
+  .scroll-indicator {
+    bottom: 20px;
+  }
+}

@@ -1,0 +1,127 @@
+.floating-bubbles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.floating-bubble {
+  position: fixed;
+  top: 0;
+  left: 0;
+  max-width: 320px;
+  min-width: 240px;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  color: white;
+  text-decoration: none;
+  pointer-events: auto;
+  cursor: pointer;
+  transform-origin: center;
+  transition: filter 0.3s ease;
+}
+
+.floating-bubble:hover {
+  filter: brightness(1.2);
+}
+
+.bubble-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.bubble-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.bubble-author {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.bubble-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bubble-platform {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.bubble-content {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #cbd5e0;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.bubble-date {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: right;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .floating-bubble {
+    max-width: 260px;
+    min-width: 200px;
+    padding: 0.875rem;
+  }
+
+  .bubble-content {
+    font-size: 0.85rem;
+    -webkit-line-clamp: 3;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-bubble {
+    max-width: 220px;
+    min-width: 180px;
+    padding: 0.75rem;
+  }
+
+  .bubble-header {
+    gap: 0.5rem;
+  }
+
+  .bubble-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .bubble-name {
+    font-size: 0.8rem;
+  }
+
+  .bubble-content {
+    font-size: 0.8rem;
+    -webkit-line-clamp: 2;
+  }
+}

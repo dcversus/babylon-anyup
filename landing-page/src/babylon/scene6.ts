@@ -6,6 +6,7 @@ import {
   MeshBuilder,
   StandardMaterial,
   Color3,
+  Mesh,
 } from '@babylonjs/core';
 
 /**
@@ -51,7 +52,7 @@ export const createScene6 = (scene: Scene) => {
 
   // Create orbiting elements
   const orbitCount = 3;
-  const orbitals: any[] = [];
+  const orbitals: Mesh[] = [];
 
   for (let i = 0; i < orbitCount; i++) {
     const orbital = MeshBuilder.CreateTorus(
@@ -73,7 +74,7 @@ export const createScene6 = (scene: Scene) => {
   }
 
   // Create small particles orbiting
-  const particles: any[] = [];
+  const particles: Mesh[] = [];
   for (let i = 0; i < 6; i++) {
     const particle = MeshBuilder.CreateSphere(
       `particle${i}`,

@@ -1,12 +1,7 @@
 import { motion } from 'framer-motion';
-import { CommentBubble } from '../components/CommentBubble';
-import { commentsData } from '../data/comments';
 import './Slide.css';
 
 export const Slide3_Demand = () => {
-  const slideComments = commentsData.filter((c) => c.position.slide === 3);
-  const mainComment = slideComments[0]; // The maintainer rejection comment
-
   return (
     <div className="slide slide-3">
       <div className="slide-content centered">
@@ -55,49 +50,46 @@ export const Slide3_Demand = () => {
             }}
           >
             <h1 className="dont-text">DON'T</h1>
+
+            {/* BOOM explosion effect */}
+            <motion.div
+              className="boom-effect"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{
+                opacity: [0, 1, 1, 0],
+                scale: [0, 1.5, 2, 2.5],
+              }}
+              transition={{
+                duration: 1.5,
+                delay: 2.5,
+                repeat: Infinity,
+                repeatDelay: 4,
+              }}
+            >
+              💥
+            </motion.div>
           </motion.div>
+
+          {/* Impact shockwave rings */}
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={`shockwave-${i}`}
+              className="shockwave-ring"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{
+                opacity: [0, 0.6, 0],
+                scale: [0, 3],
+              }}
+              transition={{
+                duration: 2,
+                delay: 2.5 + i * 0.2,
+                repeat: Infinity,
+                repeatDelay: 4 - i * 0.2,
+                ease: "easeOut",
+              }}
+            />
+          ))}
         </motion.div>
-
-        {/* Large Focused Comment Bubble */}
-        {mainComment && (
-          <motion.div
-            className="large-bubble-container"
-            initial={{ opacity: 0, scale: 0.5, y: 100 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 2.5, type: 'spring', stiffness: 100 }}
-          >
-            <CommentBubble comment={mainComment} scale={1.5} focused={true} />
-          </motion.div>
-        )}
-
-        {/* Background particles or floating small requests */}
-        <div className="background-requests">
-          {['Please add Z-up...', 'We need this...', 'Blender support...', 'WC3 maps...'].map(
-            (text, i) => (
-              <motion.div
-                key={i}
-                className="floating-request"
-                style={{
-                  left: `${20 + i * 20}%`,
-                  top: `${30 + (i % 2) * 40}%`,
-                }}
-                initial={{ opacity: 0 }}
-                animate={{
-                  opacity: [0, 0.3, 0.3, 0],
-                  y: [0, -20, -20, -40],
-                }}
-                transition={{
-                  duration: 4,
-                  delay: 0.5 + i * 0.3,
-                  repeat: Infinity,
-                  repeatDelay: 2,
-                }}
-              >
-                {text}
-              </motion.div>
-            )
-          )}
-        </div>
       </div>
     </div>
   );

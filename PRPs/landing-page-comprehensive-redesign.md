@@ -1,0 +1,949 @@
+# PRP: Landing Page Comprehensive Redesign - Full Requirements
+
+**Duration**: 4-6 weeks | **Status**: 🟡 In Progress
+
+## 🎯 Phase Overview
+
+Complete redesign of the babylon-anyup landing page with free continuous scrolling, 50+ floating comment bubbles, interactive story-driven sections, and comprehensive demonstrations. NO slide stops - completely free camera movement.
+
+**CRITICAL REQUIREMENT**: **FREE CONTINUOUS SCROLL** - No Swiper.js slide stops! User can scroll freely through all content. Bubbles float across ALL scenes and travel smoothly between sections based on scroll position.
+
+---
+
+## 📋 COMPLETE REQUIREMENTS DUMP (User's Original Specifications)
+
+### CORE SCROLL & NAVIGATION REQUIREMENTS
+
+- [ ] **FREE SCROLL** - No slide stops, completely continuous scrolling
+- [ ] **FREE CAMERA** - User controls scroll position at all times
+- [ ] **Smooth scroll behavior** - CSS `scroll-behavior: smooth`
+- [ ] **No Swiper.js pagination** - Remove slide snapping
+- [ ] **Floating elements move with scroll** - All bubbles reposition based on scroll progress
+- [ ] **Well-animated transitions** - Bubbles travel elegantly between scenes
+- [ ] **Scroll-based animations** - Use Framer Motion `useScroll()` and `useTransform()`
+
+---
+
+### SLIDE 1: INTRO SECTION (90vh height)
+
+#### Layout & Structure
+- [ ] **Height**: 90vh (slightly less than full screen)
+- [ ] **Centered layout** - All content centered on screen
+- [ ] **Floating animation** - Main container floats up/down smoothly
+- [ ] **3D Rotating Figure** - Cube/object with "Z↑" display
+
+#### Rotating Figure Requirements
+- [ ] **3D CSS transforms** - Use `perspective` and `transform-style: preserve-3d`
+- [ ] **Rotating cube with 6 faces** - Each face can have content
+- [ ] **Display "Z" and "↑" on faces** - Show coordinate system
+- [ ] **Continuous rotation animation** - Gentle, never-ending rotation
+- [ ] **Scale animation when enabled** - Grows slightly when switcher is ON
+
+#### Switcher Component
+- [ ] **"Enable Z-up!" label**
+- [ ] **Toggle switch with track and thumb** - iOS-style switcher
+- [ ] **OFF/ON status display** - Text changes based on state
+- [ ] **Auto-animate after 3 seconds** - Automatically switch from OFF to ON
+- [ ] **Spring animation** - Use Framer Motion spring physics
+- [ ] **Interactive** - User can click to toggle
+- [ ] **Visual feedback** - Hover and active states
+- [ ] **Connected to figure rotation** - When ON, figure spins 360°
+
+#### Title & Description
+- [ ] **Project name**: "babylon-anyup" with gradient styling
+- [ ] **"babylon" part** - White to gray gradient
+- [ ] **"-anyup" part** - Blue to purple gradient (#5865F2 to #a78bfa)
+- [ ] **Description text** - "A Babylon.js plugin for seamless Z-up coordinate system compatibility"
+- [ ] **EdgeCraft mention** - "Born from building Edge Craft - bringing Warcraft 3 & StarCraft 2 to the web"
+- [ ] **Clickable EdgeCraft link** - Opens https://github.com/dcversus/edgecraft
+- [ ] **Link hover effect** - Underline animation on hover
+
+#### Installation Guide
+- [ ] **"Quick Start" heading**
+- [ ] **Code block** - `npm install @dcversus/babylon-anyup`
+- [ ] **Copy button** - Clipboard copy functionality
+- [ ] **Visual feedback on copy** - Show checkmark ✓ for 2 seconds
+- [ ] **GitHub link** with star icon ⭐
+- [ ] **npm link** with package icon 📦
+- [ ] **Both links open in new tab**
+
+#### Scroll Indicator
+- [ ] **Down arrow** - Animated ↓ symbol
+- [ ] **Bounce animation** - Up/down motion (10px range)
+- [ ] **"Scroll to explore" text**
+- [ ] **Positioned at bottom** - 40px from bottom
+- [ ] **Fade in after 2 seconds**
+- [ ] **1.5s animation loop** - Infinite repeat
+
+---
+
+### FLOATING BUBBLES SYSTEM (50+ Real User Comments)
+
+#### Data Requirements
+- [ ] **Minimum 52 comments** - From GitHub issues, forums, Stack Overflow
+- [ ] **Real user names** - Actual GitHub usernames, forum handles
+- [ ] **Real avatars** - GitHub avatar URLs
+- [ ] **Actual comment text** - Copy-paste from original sources
+- [ ] **Source links** - Direct links to GitHub issue, forum post, SO question
+- [ ] **Dates** - Real dates from 2013-2025
+- [ ] **Platform identification** - GitHub, forum, or stackoverflow
+
+#### Visual Design
+- [ ] **Platform-specific styling**:
+  - GitHub: Dark (#24292e to #1a1e22), border #30363d
+  - Forum: Blue gradient (#5865F2 to #4752C4)
+  - Stack Overflow: Orange (#f48024 to #d96f1f)
+- [ ] **Bubble structure**:
+  - Header with avatar (32px circle)
+  - Author name (bold, #e2e8f0)
+  - Platform badge (uppercase, 0.75rem)
+  - Comment content (0.9rem, 4-line clamp)
+  - Date (bottom-right, faded)
+- [ ] **Shadow**: `box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3)`
+- [ ] **Backdrop filter**: `backdrop-filter: blur(10px)`
+- [ ] **Border radius**: 12px
+- [ ] **Max width**: 320px
+- [ ] **Min width**: 240px
+
+#### Animation Requirements
+- [ ] **Float animation** - Gentle up/down oscillation (every 3-4 seconds)
+- [ ] **Scroll-based movement** - Travel from scene N to scene N+1
+- [ ] **Opacity transitions** - Fade in/out at scene boundaries
+- [ ] **Scale transitions** - Grow/shrink based on focus (0.6 → 1 → 1.1 → 1 → 0.6)
+- [ ] **Hover effect** - Scale 1.15x on hover
+- [ ] **Smooth travel** - Use `useTransform()` to map scroll to X/Y positions
+- [ ] **Scene-aware positioning** - Each bubble knows which scene it belongs to
+- [ ] **Cross-scene travel** - Bubbles visible across multiple adjacent scenes
+
+#### Physics Requirements (Future)
+- [ ] **Drag-and-drop** - User can grab and throw bubbles
+- [ ] **Inertia** - Bubbles continue moving after release
+- [ ] **Bounce** - Bounce off screen edges
+- [ ] **Acceleration** - Speed up when dragged faster
+- [ ] **Collision detection** - Bubbles don't overlap
+- [ ] **Clustering** - Bubbles group together by default
+- [ ] **Explosion animation** - "BOOM" effect when clicked
+- [ ] **Re-cluster on scroll** - Reset to default positions when user scrolls significantly
+
+#### Distribution Across Scenes
+- [ ] **Slide 1**: 5-8 bubbles (intro frustrations, questions)
+- [ ] **Slide 2**: 10-12 bubbles (Blender, 3ds Max, Maya, Warcraft 3, StarCraft 2, Unity, Unreal issues)
+- [ ] **Slide 3**: 15-20 bubbles (user demand, maintainer response - THE BOOM BUBBLE)
+- [ ] **Slide 4**: 8-10 bubbles (solutions, workarounds, problems)
+- [ ] **Slide 5**: 5-7 bubbles (code complexity, performance issues)
+- [ ] **Slide 6**: 5-7 bubbles (positive feedback, success stories)
+
+---
+
+### SLIDE 2: COORDINATE SYSTEMS VISUALIZATION
+
+#### Title & Subtitle
+- [ ] **Title**: "Coordinate Systems in 3D"
+- [ ] **Subtitle**: "Y-up vs Z-up: The Fundamental Divide"
+
+#### Software Cards Grid
+- [ ] **Grid layout** - 2 columns minimum
+- [ ] **Card list** including:
+  - [ ] OpenGL (Z-up in some contexts)
+  - [ ] Blender (Z-up)
+  - [ ] 3ds Max (Z-up)
+  - [ ] AutoCAD (Z-up)
+  - [ ] Warcraft 3 (Z-up)
+  - [ ] StarCraft 2 (Z-up)
+  - [ ] Maya (Y-up)
+  - [ ] Unity (Y-up)
+  - [ ] Unreal Engine (Z-up)
+  - [ ] Cinema 4D (Y-up)
+  - [ ] Houdini (Y-up)
+  - [ ] Modo (Y-up)
+- [ ] **Color-coded borders** - Each software has unique accent color
+- [ ] **"Z-up" or "Y-up" badge** - Clear identification
+- [ ] **Stagger animation** - Cards appear sequentially (0.1s delay each)
+- [ ] **Hover effect** - Scale up and brighten
+
+#### Import Animation
+- [ ] **Arrow pointing down** - Animated ↓ from software to Babylon.js
+- [ ] **"Import to Babylon.js (Y-up)" text**
+- [ ] **Scale animation** - Arrow grows/shrinks
+- [ ] **Delay**: 1 second after cards appear
+
+#### Warning Box
+- [ ] **Red gradient background** - `rgba(239, 68, 68, 0.2)`
+- [ ] **Red border** - 2px solid #ef4444
+- [ ] **Warning icon** - ⚠️ emoji
+- [ ] **Text**: "Everything falls over!"
+- [ ] **Shake animation** - Gentle shake effect
+- [ ] **Appears after**: 1.5 seconds
+
+#### Z-up Lives Visualization (Babylon.js Scene)
+- [ ] **Rotating 3D coordinate axes**
+- [ ] **X-axis**: Red cylinder with emissive glow
+- [ ] **Y-axis**: Green cylinder with emissive glow
+- [ ] **Z-axis**: Blue cylinder with emissive glow
+- [ ] **Demo sphere** - Rotating object to show orientation
+- [ ] **Switcher integration** - Toggle between Y-up and Z-up views
+- [ ] **Smooth camera transition** - When toggling coordinate systems
+- [ ] **Highlighted switcher** - Visual indicator showing which system is active
+- [ ] **Scene label** - Badge showing current coordinate system
+
+---
+
+### SLIDE 3: COMMUNITY DEMAND & "THE BOOM"
+
+#### Typography Animation
+- [ ] **Centered layout** - All text centered on screen
+- [ ] **"We want support for it"** - Large text (4rem)
+- [ ] **Fade in animation** - 0.8s duration
+- [ ] **"But they..."** - Medium text (3rem), delay 1s
+- [ ] **"DON'T"** - HUGE text (6rem), red color #ef4444
+- [ ] **Shake animation on "DON'T"** - Rotate [-2°, 2°, -2°, 0°]
+- [ ] **Repeat shake** - Every 3 seconds
+- [ ] **Text shadow** - `0 4px 20px rgba(239, 68, 68, 0.5)`
+
+#### Bubble Release Animation
+- [ ] **All bubbles start clustered** - Right side of screen, small scale
+- [ ] **Auto-release on scroll** - When user scrolls into this scene
+- [ ] **Explosion effect** - Bubbles scatter outward radially
+- [ ] **Stagger timing** - Each bubble releases 0.1s apart
+- [ ] **Travel to positions** - Each bubble goes to its assigned position
+- [ ] **Spring physics** - Use `type: 'spring'` animation
+
+#### Maintainer BOOM Bubble
+- [ ] **deltakosh's comment** - "This is intentional because Babylon.js uses a system with Y up"
+- [ ] **Large scale** - 1.5x to 2x normal size
+- [ ] **Center position** - Middle of screen
+- [ ] **GitHub styling** - Dark gray gradient
+- [ ] **Link to actual issue** - https://github.com/BabylonJS/Babylon.js/issues/31
+- [ ] **Appears LAST** - After all other bubbles settle
+- [ ] **BOOM text animation** - Show "💥 BOOM!" text briefly
+- [ ] **Scale pulse** - Pulse from 1.5x to 2x to 1.5x
+- [ ] **Drop shadow** - Extra-large shadow for emphasis
+
+#### Background Floating Requests
+- [ ] **Faded text elements** - Small user requests in background
+- [ ] **Opacity**: 0.3
+- [ ] **Floating animation** - Slow vertical movement
+- [ ] **Text samples**:
+  - "Please add Z-up..."
+  - "We need this..."
+  - "Blender support..."
+  - "WC3 maps..."
+  - "3ds Max exports..."
+- [ ] **Random positioning** - Distributed across screen
+- [ ] **Fade in/out cycle** - 4-second loop
+
+---
+
+### SLIDE 4: PERFORMANCE & PROBLEMS
+
+#### Section Title
+- [ ] **"The Performance Impact"**
+- [ ] **Real numbers** - Actual transformation costs
+
+#### Performance Metrics Display
+- [ ] **Before babylon-anyup**:
+  - [ ] Manual transformations: "100+ lines of code"
+  - [ ] Performance: "~50K ops/sec"
+  - [ ] Memory overhead: "High (matrix allocations)"
+  - [ ] Error rate: "Common (manual mistakes)"
+- [ ] **After babylon-anyup**:
+  - [ ] Code: "3 lines"
+  - [ ] Performance: "22M ops/sec"
+  - [ ] Memory: "Zero allocations"
+  - [ ] Errors: "Zero (automatic)"
+- [ ] **Visual comparison** - Side-by-side cards
+- [ ] **Color coding** - Red for bad, green for good
+- [ ] **Animation** - Numbers count up
+
+#### Code Transformation Examples as Bubbles
+- [ ] **Code snippet bubbles** - Floating code blocks
+- [ ] **Show problematic patterns**:
+  ```typescript
+  // Manual rotation
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.rotation.y = Math.PI;
+  // Textures now inverted!
+  ```
+- [ ] **Syntax highlighting** - Use Prism.js
+- [ ] **Link to real messages** - GitHub discussions, forum posts
+- [ ] **Problem annotations** - Red underlines on issues
+- [ ] **"Performance impact: -80%" badge**
+
+#### Problem Visualization (Babylon.js Scene)
+- [ ] **Split viewport** - Before/after comparison
+- [ ] **Left side**: Manual transformation with issues
+  - [ ] Inverted textures
+  - [ ] Wrong orientation
+  - [ ] Mirrored geometry
+- [ ] **Right side**: babylon-anyup automatic fix
+  - [ ] Correct textures
+  - [ ] Proper orientation
+  - [ ] Perfect geometry
+- [ ] **Toggle animation** - Flip between views
+- [ ] **Annotations** - Labels pointing out problems
+
+---
+
+### SLIDE 5: EDGECRAFT CODE EXAMPLE
+
+#### Section Introduction
+- [ ] **Title**: "This is what we had to do..."
+- [ ] **Subtitle**: "100+ lines of manual transformation hell"
+
+#### Code Block Display
+- [ ] **Large code block** - Takes up most of slide
+- [ ] **EdgeCraft transformation code** - Real code from uz0 repo
+- [ ] **Syntax highlighting** - TypeScript theme with Prism.js
+- [ ] **Line numbers** - Visible on left side
+- [ ] **Gradient overlay** - Bottom-right corner fade
+- [ ] **Scrollable** - Slow auto-scroll to show length
+- [ ] **Line count animation** - "1... 50... 100+ lines"
+
+#### Code Permalink
+- [ ] **"View on GitHub" button** - Links to actual commit
+- [ ] **Stable URL** - Permalink to specific commit, not main branch
+- [ ] **Repository**: uz0 (Edge Craft repo)
+- [ ] **File path** - Direct link to transformation file
+- [ ] **Opens in new tab**
+- [ ] **Icon**: GitHub logo or 🔗
+
+#### Transformation Code Details
+- [ ] **Show vertex transformation loop**
+- [ ] **Show rotation adjustments**
+- [ ] **Show texture coordinate fixes**
+- [ ] **Highlight problematic sections** - Red background
+- [ ] **Show commented-out attempts** - Previous failed attempts
+
+#### Problem Annotations
+- [ ] **Comment bubbles around code**:
+  - "So much boilerplate"
+  - "Easy to make mistakes"
+  - "Spent 2 weeks on this"
+  - "Still has bugs"
+- [ ] **Small scale** - 0.7x normal size
+- [ ] **Positioned around code block** - Point to specific lines
+
+---
+
+### SLIDE 6: BABYLON-ANYUP SOLUTION
+
+#### Title
+- [ ] **"babylon-anyup: The Solution"**
+- [ ] **Gradient text** - Blue to purple
+- [ ] **Large size** - 4rem
+
+#### Before/After Babylon.js Scene
+- [ ] **Side-by-side viewports**
+- [ ] **Left: Manual code chaos**
+  - [ ] Show traditional transformation approach
+  - [ ] Display messy code overlay
+  - [ ] Show performance counter (slow)
+- [ ] **Right: Clean babylon-anyup integration**
+  - [ ] Same result, simple code
+  - [ ] Show 3-line code overlay
+  - [ ] Show performance counter (fast)
+- [ ] **Transformation animation** - Smooth crossfade between views
+- [ ] **"Magic" particle effect** - When switching
+
+#### Code Comparison
+- [ ] **From section**: 100+ lines code block (collapsed/small)
+- [ ] **Arrow/animation** - Morph into smaller block
+- [ ] **To section**: 3-line code block (highlighted)
+```typescript
+const plugin = new AnyUpPlugin({
+  sourceSystem: 'z-up', targetSystem: 'y-up'
+});
+```
+- [ ] **Typewriter effect** - Code appears letter-by-letter
+- [ ] **Syntax highlighting** - TypeScript colors
+
+#### Benefits List
+- [ ] **✓ Automatic conversion** - Checkmark with text
+- [ ] **✓ Zero mistakes** - Checkmark with text
+- [ ] **✓ 22M ops/sec performance** - Checkmark with text
+- [ ] **✓ Zero memory allocations** - Checkmark with text
+- [ ] **✓ Works with all Babylon.js meshes** - Checkmark with text
+- [ ] **✓ Type-safe TypeScript API** - Checkmark with text
+- [ ] **Sequential animation** - Checkmarks appear one by one
+- [ ] **Green color** - #22c55e
+- [ ] **Scale animation** - Pop in effect
+
+#### Installation Section
+- [ ] **"Get Started" heading**
+- [ ] **Copy-paste code block** - npm install command
+- [ ] **Copy button** - Clipboard functionality
+- [ ] **Documentation link** - Opens README on GitHub
+- [ ] **"View Docs" button** - Secondary CTA
+
+#### Call-to-Action Buttons
+- [ ] **Primary button**: "Get Started" → Installation section (or top of page)
+- [ ] **Secondary button**: "View on GitHub" → Repository
+- [ ] **GitHub stars badge** - Live count from GitHub API
+- [ ] **npm downloads badge** - Live count from npm API
+- [ ] **Hover animations** - Scale up, shadow increase
+- [ ] **Icons over text** - ⭐ and 📦 icons
+
+---
+
+### TECH INFO PAGE / SECTION
+
+#### "How It Works" Section
+- [ ] **Architecture diagram** - Visual showing plugin integration
+- [ ] **Transformation pipeline** - Show data flow
+- [ ] **Step-by-step breakdown**:
+  1. Plugin initializes with source/target coordinate systems
+  2. Hooks into Babylon.js scene
+  3. Automatically transforms imported meshes
+  4. Handles positions, rotations, and scales
+  5. Zero overhead after initial setup
+- [ ] **Illustrated with icons** - Simple graphics
+
+#### Useful Links Section
+- [ ] **Documentation link** - Main README.md
+- [ ] **API Reference** - Detailed API docs
+- [ ] **GitHub Repository** - Source code
+- [ ] **npm Package** - Package page
+- [ ] **EdgeCraft Example** - Real-world usage
+- [ ] **Babylon.js Docs** - Official docs
+- [ ] **Community Forum** - Babylon.js forum
+- [ ] **Issue Tracker** - GitHub issues
+
+#### GitHub Star Widget
+- [ ] **Live star count** - Fetch from GitHub API
+- [ ] **"Star on GitHub" button** - Opens repo in new tab
+- [ ] **Formatted count** - e.g., "123" or "1.2K"
+- [ ] **Update on hover** - Re-fetch latest count
+- [ ] **Loading state** - Skeleton/spinner while fetching
+- [ ] **Error handling** - Show cached/fallback count if API fails
+
+#### Package Info Display
+- [ ] **Format**: `@dcversus/babylon-anyup`
+- [ ] **Monospace font** - Code-style display
+- [ ] **Version badge** - Current version from npm
+- [ ] **License badge** - AGPL-3.0
+- [ ] **Bundle size** - "<10KB minified"
+- [ ] **Dependencies** - "Zero runtime dependencies"
+
+---
+
+## 🎨 DESIGN SYSTEM REQUIREMENTS
+
+### Color Palette
+- [ ] **Primary gradient**: #5865F2 (blue) → #a78bfa (purple)
+- [ ] **Background**: #0a0e27 (dark blue) → #1a1e42 (lighter dark blue)
+- [ ] **Text primary**: #ffffff (white)
+- [ ] **Text secondary**: #e2e8f0 (light gray)
+- [ ] **Text tertiary**: #cbd5e0 (medium gray)
+- [ ] **Success**: #22c55e (green)
+- [ ] **Error**: #ef4444 (red)
+- [ ] **Warning**: #f59e0b (orange)
+- [ ] **GitHub**: #24292e → #1a1e22 (dark gray gradient)
+- [ ] **Forum**: #5865F2 → #4752C4 (blue gradient)
+- [ ] **Stack Overflow**: #f48024 → #d96f1f (orange gradient)
+
+### Typography
+- [ ] **Headings**: 800 weight, tight line-height
+- [ ] **Body**: 400 weight, 1.5-1.8 line-height
+- [ ] **Code**: Monaco, Menlo, Consolas, monospace
+- [ ] **Sizes**:
+  - H1: 3.5-6rem (depending on context)
+  - H2: 1.8-3rem
+  - H3: 1.2-1.5rem
+  - Body: 1rem-1.4rem
+  - Small: 0.75-0.9rem
+
+### Spacing Scale
+- [ ] **Base unit**: 0.25rem (4px)
+- [ ] **Scale**: 4, 8, 12, 16, 20, 24, 32, 40, 48, 60, 80px
+- [ ] **Consistent gap spacing** - Use same scale everywhere
+
+### Border Radius Scale
+- [ ] **Small**: 6px (buttons, badges)
+- [ ] **Medium**: 8px (cards)
+- [ ] **Large**: 12px (bubbles, code blocks)
+- [ ] **XL**: 16px (sections, containers)
+- [ ] **Round**: 50% or 999px (avatars, pills)
+
+### Shadow Scale
+- [ ] **Small**: `0 2px 8px rgba(0, 0, 0, 0.15)`
+- [ ] **Medium**: `0 8px 24px rgba(0, 0, 0, 0.25)`
+- [ ] **Large**: `0 16px 48px rgba(0, 0, 0, 0.4)`
+- [ ] **Colored**: Add primary color with low opacity
+
+---
+
+## 📐 RESPONSIVE DESIGN REQUIREMENTS
+
+### Breakpoints
+- [ ] **Mobile**: 320px - 767px
+- [ ] **Tablet**: 768px - 1023px
+- [ ] **Desktop**: 1024px - 1919px
+- [ ] **Large Desktop**: 1920px+
+
+### Mobile Specific (< 768px)
+- [ ] **Single column layouts** - No side-by-side
+- [ ] **Larger touch targets** - Minimum 44x44px
+- [ ] **Reduced animations** - Respect `prefers-reduced-motion`
+- [ ] **Smaller font sizes** - Scale down headings
+- [ ] **Simplified Babylon.js scenes** - Reduce polygon count
+- [ ] **Bubble sizes** - Min width 180px, max 220px
+- [ ] **Stack installation buttons** - Full width
+- [ ] **Hide scroll indicator earlier** - Appears at 20px from bottom
+
+### Tablet Specific (768px - 1023px)
+- [ ] **2-column grids** - Where appropriate
+- [ ] **Medium bubble sizes** - 200-260px range
+- [ ] **Adjusted scene sizes** - 60-70% of slide height
+
+### Desktop Optimization (1024px+)
+- [ ] **Side-by-side layouts** - Full split-screen scenes
+- [ ] **Larger bubbles** - 240-320px range
+- [ ] **Parallax effects** - Subtle depth on scroll
+- [ ] **Keyboard shortcuts** - Arrow keys, spacebar
+
+### 4K/Large Displays (1920px+)
+- [ ] **Max content width** - 1600px container
+- [ ] **Scale up fonts** - Proportional scaling
+- [ ] **Larger Babylon.js viewports** - More visual space
+
+---
+
+## ⚡ PERFORMANCE REQUIREMENTS
+
+### Load Time
+- [ ] **First Contentful Paint**: <1.5s
+- [ ] **Time to Interactive**: <3s
+- [ ] **Total page load**: <5s on 3G
+
+### Runtime Performance
+- [ ] **60fps** - All animations maintain 60fps
+- [ ] **Babylon.js scenes**: 60fps minimum
+- [ ] **Scroll performance**: No jank, smooth scrolling
+- [ ] **Bubble animations**: GPU-accelerated transforms
+
+### Bundle Size
+- [ ] **Total JS bundle**: <800KB gzipped
+- [ ] **Code splitting**: Lazy-load Babylon.js scenes
+- [ ] **Image optimization**: WebP with fallbacks
+- [ ] **Font loading**: Subset fonts, preload critical
+
+### Memory Management
+- [ ] **Dispose Babylon.js scenes** - When scrolled out of view
+- [ ] **Remove event listeners** - Cleanup on unmount
+- [ ] **No memory leaks** - Test with Chrome DevTools
+- [ ] **Efficient re-renders** - Use React.memo, useMemo, useCallback
+
+---
+
+## ♿ ACCESSIBILITY REQUIREMENTS
+
+### Keyboard Navigation
+- [ ] **Tab order** - Logical tab progression
+- [ ] **Focus indicators** - Visible focus outlines
+- [ ] **Keyboard shortcuts** - Document and implement
+- [ ] **Skip links** - Skip to main content
+- [ ] **Escape key** - Close modals/overlays
+
+### Screen Readers
+- [ ] **ARIA labels** - All interactive elements
+- [ ] **ARIA roles** - Proper semantic roles
+- [ ] **Alt text** - All images and icons
+- [ ] **Live regions** - Announce dynamic changes
+- [ ] **Descriptive link text** - No "click here"
+
+### Visual Accessibility
+- [ ] **Color contrast**: WCAG AA minimum (4.5:1 for text)
+- [ ] **Focus indicators**: 3:1 contrast with background
+- [ ] **No color-only information** - Use icons + text
+- [ ] **Readable font sizes** - Minimum 16px body text
+- [ ] **Scalable text** - Works at 200% zoom
+
+### Motion Sensitivity
+- [ ] **Respect `prefers-reduced-motion`** - Disable/reduce animations
+- [ ] **Option to disable animations** - User preference toggle
+- [ ] **No flashing** - Avoid seizure-triggering patterns
+- [ ] **Smooth transitions** - No jarring movements
+
+---
+
+## 🧪 TESTING REQUIREMENTS
+
+### Browser Testing
+- [ ] **Chrome** 120+ (Windows, Mac, Linux)
+- [ ] **Firefox** 120+ (Windows, Mac, Linux)
+- [ ] **Safari** 17+ (Mac, iOS)
+- [ ] **Edge** 120+ (Windows)
+- [ ] **Brave** - Latest
+- [ ] **Arc** - Latest
+
+### Device Testing
+- [ ] **iPhone 12/13/14** - iOS Safari
+- [ ] **iPhone SE** - Small screen test
+- [ ] **iPad** - Tablet layout
+- [ ] **Google Pixel 6/7** - Chrome Android
+- [ ] **Samsung Galaxy S21/S22** - Samsung Internet
+- [ ] **MacBook Pro** 13", 15", 16" - Various screen sizes
+- [ ] **Windows Desktop** - 1920x1080, 2560x1440
+- [ ] **4K Monitor** - 3840x2160
+
+### Functionality Testing
+- [ ] **All links work** - No 404s
+- [ ] **Copy buttons work** - Clipboard API
+- [ ] **GitHub API** - Star count loads
+- [ ] **npm API** - Download count loads (if implemented)
+- [ ] **Babylon.js scenes** - All 4+ scenes render
+- [ ] **Bubbles** - All 52 bubbles display correctly
+- [ ] **Animations** - No animation glitches
+- [ ] **Scroll behavior** - Smooth, no jumps
+
+### Performance Testing
+- [ ] **Lighthouse audit** - Score >90 in all categories
+- [ ] **WebPageTest** - Test on 3G connection
+- [ ] **Chrome DevTools Performance** - No long tasks >50ms
+- [ ] **Memory profiling** - No memory leaks
+- [ ] **Frame rate monitoring** - Consistent 60fps
+
+---
+
+## 🚀 DEPLOYMENT REQUIREMENTS
+
+### GitHub Pages
+- [ ] **Build succeeds** - `npm run build` passes
+- [ ] **Deploy succeeds** - GitHub Actions workflow completes
+- [ ] **Site loads** - https://dcversus.github.io/babylon-anyup/
+- [ ] **Base path correct** - All assets load with `/babylon-anyup/` prefix
+
+### Custom Domain (anyup.theedgestory.org)
+- [ ] **DNS configured** - CNAME record points to GitHub Pages
+- [ ] **HTTPS enabled** - Valid SSL certificate
+- [ ] **No mixed content** - All resources use HTTPS
+- [ ] **Site loads** - https://anyup.theedgestory.org/
+- [ ] **Base path correct** - All assets load with `/` prefix (root)
+
+### SEO
+- [ ] **Title tag** - Descriptive, unique
+- [ ] **Meta description** - Compelling, <160 chars
+- [ ] **Open Graph tags** - og:title, og:description, og:image
+- [ ] **Twitter Card** - twitter:card, twitter:title, twitter:description
+- [ ] **Canonical URL** - Prefer custom domain
+- [ ] **robots.txt** - Allow crawling
+- [ ] **sitemap.xml** - If multi-page
+
+### Analytics (Optional)
+- [ ] **Google Analytics** - Or privacy-friendly alternative
+- [ ] **Pageview tracking**
+- [ ] **Event tracking** - Button clicks, bubble interactions
+- [ ] **Performance tracking** - Web Vitals
+
+---
+
+## ✅ COMPREHENSIVE CHECKLIST (100+ Items)
+
+### Setup & Configuration (5 items)
+- [ ] 1. Vite project initialized with React + TypeScript
+- [ ] 2. All dependencies installed (Framer Motion, Babylon.js, Prism.js)
+- [ ] 3. ESLint configured with zero errors
+- [ ] 4. TypeScript strict mode enabled
+- [ ] 5. Build configured for GitHub Pages deployment
+
+### Component Development (20 items)
+- [ ] 6. App.tsx - Free scroll container (no Swiper)
+- [ ] 7. FloatingBubbles.tsx - Global bubble manager
+- [ ] 8. FloatingBubble.tsx - Individual bubble with animations
+- [ ] 9. Slide1_Intro.tsx - Intro section with all requirements
+- [ ] 10. Slide2_Examples.tsx - Coordinate systems grid
+- [ ] 11. Slide3_Demand.tsx - Typography animation + BOOM
+- [ ] 12. Slide4_Solutions.tsx - Performance metrics
+- [ ] 13. Slide5_EdgeCraft.tsx - Code example
+- [ ] 14. Slide6_BabylonAnyup.tsx - Solution showcase
+- [ ] 15. BabylonScene.tsx - Reusable 3D scene wrapper
+- [ ] 16. CodeBlock.tsx - Syntax-highlighted code component
+- [ ] 17. scene1.ts - Rotating coordinate axes
+- [ ] 18. scene2.ts - Import animation
+- [ ] 19. scene4.ts - Problem visualization
+- [ ] 20. scene6.ts - Before/after comparison
+- [ ] 21. CommentBubble.css - Bubble styling with platform themes
+- [ ] 22. FloatingBubbles.css - Global bubble container styling
+- [ ] 23. Slide.css - Common slide styles
+- [ ] 24. Slide1_Intro.css - Intro-specific styles
+- [ ] 25. App.css - Root app styles with scroll behavior
+
+### Data & Content (15 items)
+- [ ] 26. comments.ts - 52+ real user comments
+- [ ] 27. Comment from cyle (GitHub #31, 2013)
+- [ ] 28. Comment from marcusdiy (GitHub #31, 2021)
+- [ ] 29. Comment from deltakosh (maintainer response)
+- [ ] 30. Comment from pascalbayer (Z-up confusion)
+- [ ] 31. Comments from Blender users (5+)
+- [ ] 32. Comments from 3ds Max users (3+)
+- [ ] 33. Comments from Warcraft 3/SC2 modders (3+)
+- [ ] 34. Comments from CAD software users (5+)
+- [ ] 35. Comments from Unity/Unreal developers (3+)
+- [ ] 36. Comments from Maya/Cinema 4D/Houdini users (5+)
+- [ ] 37. Comments about texture flipping (3+)
+- [ ] 38. Comments about performance issues (3+)
+- [ ] 39. Comments about code complexity (3+)
+- [ ] 40. All comments have real source links
+
+### Slide 1: Intro (20 items)
+- [ ] 41. 3D rotating cube implemented
+- [ ] 42. Cube shows "Z" and "↑" on faces
+- [ ] 43. Continuous rotation animation
+- [ ] 44. Floating container animation (up/down)
+- [ ] 45. Switcher component with track and thumb
+- [ ] 46. Switcher auto-animates after 3 seconds
+- [ ] 47. Switcher toggles with spring physics
+- [ ] 48. OFF/ON status display
+- [ ] 49. Cube spins 360° when switcher enabled
+- [ ] 50. "babylon-anyup" title with gradients
+- [ ] 51. Description text with EdgeCraft link
+- [ ] 52. EdgeCraft link opens in new tab
+- [ ] 53. Installation code block
+- [ ] 54. Copy to clipboard button
+- [ ] 55. Copy feedback (checkmark for 2s)
+- [ ] 56. GitHub link with star icon
+- [ ] 57. npm link with package icon
+- [ ] 58. Scroll indicator with bounce animation
+- [ ] 59. All text animations with proper delays
+- [ ] 60. Responsive layout for mobile
+
+### Slide 2: Coordinate Systems (12 items)
+- [ ] 61. Title and subtitle rendered
+- [ ] 62. Software cards grid (10+ software)
+- [ ] 63. Each card has unique color border
+- [ ] 64. Z-up/Y-up badges on cards
+- [ ] 65. Stagger animation on cards
+- [ ] 66. Import arrow animation
+- [ ] 67. Warning box with shake effect
+- [ ] 68. Babylon.js scene with 3D axes
+- [ ] 69. X-axis red, Y-axis green, Z-axis blue
+- [ ] 70. Rotating demo sphere
+- [ ] 71. Scene label showing coordinate system
+- [ ] 72. Responsive grid for mobile
+
+### Slide 3: Community Demand (10 items)
+- [ ] 73. "We want support for it" text
+- [ ] 74. "But they..." text with delay
+- [ ] 75. "DON'T" text extra large and red
+- [ ] 76. Shake animation on "DON'T"
+- [ ] 77. Background floating request texts (4-5)
+- [ ] 78. Bubbles auto-release on scroll
+- [ ] 79. Explosion scatter animation
+- [ ] 80. Maintainer BOOM bubble (deltakosh)
+- [ ] 81. BOOM bubble 2x scale
+- [ ] 82. BOOM bubble appears last
+
+### Slide 4: Performance (8 items)
+- [ ] 83. Performance metrics display
+- [ ] 84. Before/after comparison cards
+- [ ] 85. Real numbers (22M ops/sec, etc.)
+- [ ] 86. Code snippet bubbles
+- [ ] 87. Syntax highlighting on code snippets
+- [ ] 88. Problem annotations (red underlines)
+- [ ] 89. Babylon.js split viewport scene
+- [ ] 90. Toggle animation between views
+
+### Slide 5: EdgeCraft Code (10 items)
+- [ ] 91. Large code block display
+- [ ] 92. Real EdgeCraft code from uz0 repo
+- [ ] 93. Syntax highlighting (TypeScript theme)
+- [ ] 94. Line numbers visible
+- [ ] 95. Gradient overlay at bottom-right
+- [ ] 96. Slow auto-scroll animation
+- [ ] 97. Line count animation (1→50→100+)
+- [ ] 98. "View on GitHub" button
+- [ ] 99. Permalink to specific commit
+- [ ] 100. Comment bubbles around code
+
+### Slide 6: Solution (15 items)
+- [ ] 101. Title with gradient
+- [ ] 102. Babylon.js before/after scene
+- [ ] 103. Side-by-side viewports
+- [ ] 104. Code overlay on scenes
+- [ ] 105. Performance counters on scenes
+- [ ] 106. Transformation animation
+- [ ] 107. 3-line code block
+- [ ] 108. Typewriter effect on code
+- [ ] 109. Benefits list with checkmarks
+- [ ] 110. Sequential checkmark animation
+- [ ] 111. Installation section
+- [ ] 112. Copy button functionality
+- [ ] 113. "Get Started" CTA button
+- [ ] 114. "View on GitHub" button
+- [ ] 115. GitHub stars badge (live count)
+
+### Floating Bubbles System (15 items)
+- [ ] 116. Global FloatingBubbles component
+- [ ] 117. useScroll() hook implementation
+- [ ] 118. useTransform() for X position
+- [ ] 119. useTransform() for Y position
+- [ ] 120. useTransform() for opacity
+- [ ] 121. useTransform() for scale
+- [ ] 122. Scene-aware positioning logic
+- [ ] 123. Travel between scenes smoothly
+- [ ] 124. Fade in/out at boundaries
+- [ ] 125. Hover effect (scale 1.15x)
+- [ ] 126. Platform-specific styling (3 themes)
+- [ ] 127. Avatar images (32px circles)
+- [ ] 128. Author names and dates
+- [ ] 129. Clickable links to sources
+- [ ] 130. Responsive bubble sizing
+
+### Tech Info Section (8 items)
+- [ ] 131. "How It Works" section
+- [ ] 132. Architecture diagram/explanation
+- [ ] 133. Useful links section
+- [ ] 134. GitHub repository link
+- [ ] 135. npm package link
+- [ ] 136. Documentation link
+- [ ] 137. GitHub star widget (live)
+- [ ] 138. Package info display (@dcversus/babylon-anyup)
+
+### Styling & Design (10 items)
+- [ ] 139. Color palette implemented (10+ colors)
+- [ ] 140. Typography scale consistent
+- [ ] 141. Spacing scale consistent (4-80px)
+- [ ] 142. Border radius scale (6-16px)
+- [ ] 143. Shadow scale (3 levels)
+- [ ] 144. Gradient backgrounds on all slides
+- [ ] 145. backdrop-filter blur effects
+- [ ] 146. Text gradients on headings
+- [ ] 147. Hover effects on interactive elements
+- [ ] 148. Active states on buttons
+
+### Responsive Design (8 items)
+- [ ] 149. Mobile layout (<768px)
+- [ ] 150. Tablet layout (768-1023px)
+- [ ] 151. Desktop layout (1024-1919px)
+- [ ] 152. Large desktop (1920px+)
+- [ ] 153. Touch targets 44x44px minimum (mobile)
+- [ ] 154. Single column on mobile
+- [ ] 155. Scaled fonts for mobile
+- [ ] 156. Simplified scenes on mobile
+
+### Performance (8 items)
+- [ ] 157. Lighthouse score >90
+- [ ] 158. First Contentful Paint <1.5s
+- [ ] 159. Time to Interactive <3s
+- [ ] 160. Bundle size <800KB gzipped
+- [ ] 161. All animations 60fps
+- [ ] 162. No memory leaks
+- [ ] 163. Babylon.js scenes dispose properly
+- [ ] 164. Efficient re-renders (React.memo)
+
+### Accessibility (10 items)
+- [ ] 165. Logical tab order
+- [ ] 166. Focus indicators visible
+- [ ] 167. ARIA labels on interactive elements
+- [ ] 168. Alt text on images
+- [ ] 169. Color contrast WCAG AA
+- [ ] 170. Keyboard navigation works
+- [ ] 171. Respect prefers-reduced-motion
+- [ ] 172. Screen reader compatible
+- [ ] 173. No color-only information
+- [ ] 174. Readable font sizes (min 16px)
+
+### Testing (15 items)
+- [ ] 175. Tested on Chrome 120+
+- [ ] 176. Tested on Firefox 120+
+- [ ] 177. Tested on Safari 17+
+- [ ] 178. Tested on Edge 120+
+- [ ] 179. Tested on iPhone (iOS Safari)
+- [ ] 180. Tested on Android (Chrome)
+- [ ] 181. Tested on iPad
+- [ ] 182. All links work (no 404s)
+- [ ] 183. Copy buttons work
+- [ ] 184. GitHub API loads
+- [ ] 185. All Babylon.js scenes render
+- [ ] 186. All 52 bubbles display
+- [ ] 187. Animations smooth (no glitches)
+- [ ] 188. Scroll behavior smooth
+- [ ] 189. No console errors
+
+### Deployment (10 items)
+- [ ] 190. npm run build succeeds
+- [ ] 191. GitHub Actions workflow passes
+- [ ] 192. Deployed to GitHub Pages
+- [ ] 193. Site loads at dcversus.github.io/babylon-anyup/
+- [ ] 194. Base path correct (/babylon-anyup/)
+- [ ] 195. Custom domain configured (anyup.theedgestory.org)
+- [ ] 196. HTTPS enabled on custom domain
+- [ ] 197. Base path correct on custom domain (/)
+- [ ] 198. All assets load correctly
+- [ ] 199. No mixed content warnings
+
+### SEO & Meta (6 items)
+- [ ] 200. Title tag descriptive
+- [ ] 201. Meta description <160 chars
+- [ ] 202. Open Graph tags
+- [ ] 203. Twitter Card tags
+- [ ] 204. Canonical URL set
+- [ ] 205. robots.txt allows crawling
+
+### Code Quality (5 items)
+- [ ] 206. Zero TypeScript errors
+- [ ] 207. Zero ESLint errors
+- [ ] 208. Zero console warnings
+- [ ] 209. All components typed properly
+- [ ] 210. No `any` types (except Framer Motion types)
+
+---
+
+## 🚧 Current Status
+
+### ✅ Completed
+- [x] Removed Swiper.js, implemented free scroll
+- [x] Created FloatingBubbles global system
+- [x] Collected 52+ real user comments from GitHub/forums
+- [x] Implemented Slide1_Intro with rotating cube, switcher, installation guide
+- [x] Fixed CSS conflicts (removed overflow: hidden)
+- [x] All lint checks pass
+- [x] TypeScript compiles successfully
+
+### 🟡 In Progress
+- [ ] Fix bubble positioning (currently all scenes show above screen)
+- [ ] Implement bubble scroll-based animations correctly
+- [ ] Add remaining Babylon.js scenes (2, 4, 6)
+- [ ] Complete Slide2 with coordinate system grid
+- [ ] Complete Slide3 with BOOM animation
+- [ ] Complete Slide4 with performance metrics
+- [ ] Complete Slide5 with EdgeCraft code
+- [ ] Complete Slide6 with solution showcase
+
+### ⏳ Pending
+- [ ] Add drag-and-drop physics to bubbles
+- [ ] Implement clustering/explosion system
+- [ ] Add performance metrics with real numbers
+- [ ] Create EdgeCraft code bubble with permalink
+- [ ] Add inverted texture demonstrations
+- [ ] Implement tech info section
+- [ ] Add GitHub star widget
+- [ ] Run full quality checks
+- [ ] Deploy to production
+
+---
+
+## 📊 Success Metrics
+
+- [ ] All 210+ checklist items completed
+- [ ] User can scroll freely without slide stops
+- [ ] All 52 bubbles visible and traveling between scenes
+- [ ] All 6 slides fully functional and animated
+- [ ] Lighthouse score >90
+- [ ] Works on mobile and desktop
+- [ ] Deployed to both GitHub Pages URLs
+
+---
+
+## 🔗 Related Materials
+
+- Original conversation with detailed requirements
+- babylon-anyup repository: https://github.com/dcversus/babylon-anyup
+- Edge Craft repository: https://github.com/dcversus/edgecraft
+- Babylon.js documentation: https://doc.babylonjs.com
+- Framer Motion docs: https://www.framer.com/motion
+- GitHub Issue #31: https://github.com/BabylonJS/Babylon.js/issues/31
+
+---
+
+**This PRP captures ALL user requirements for future reference after context is lost.**
