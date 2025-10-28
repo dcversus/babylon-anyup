@@ -1372,6 +1372,177 @@ The **ORCHESTRATOR** is a special meta-agent with unique authority:
 
 ---
 
+## 🎬 ORCHESTRATOR AUTONOMOUS EXECUTION
+
+### Critical Rule: Don't Wait for Admin - EXECUTE
+
+**After ORCHESTRATOR makes recommendation, DO NOT wait for admin approval. Execute immediately using ORCHESTRATOR's best judgment.**
+
+### Execution Workflow
+
+```typescript
+// ORCHESTRATOR Decision Tree
+if (currentBranch === 'main') {
+  // 1. Create feature branch from main
+  git checkout -b feature/{prp-name}
+
+  // 2. Include "ghost files" (uncommitted changes)
+  git add .  // Include all current working directory changes
+
+  // 3. Leave signal in PRP about orphan files
+  addSignalToPRP({
+    signal: 'EXCITED',
+    comment: 'Ghost files detected and included in feature branch',
+    context: 'Uncommitted changes from main branch preserved',
+    files: listUncommittedFiles(),
+    prpLink: 'Link to related PRP'
+  });
+} else {
+  // Already on feature branch - execute in place
+  executeAllPRPsInBranch();
+}
+```
+
+### Ghost Files Protocol
+
+**"Ghost Files"**: Uncommitted changes in working directory when starting new work
+
+**Handling Ghost Files**:
+1. **Always preserve them** - `git add .` before creating branch
+2. **Document in PRP** - Leave EXCITED (4/10) signal with file list
+3. **Link to PRP** - Add reference to PRP that ghost files relate to
+4. **Commit with context** - Explain why these files were orphaned
+
+**Example Signal**:
+```markdown
+### 2025-10-28 - ORCHESTRATOR - Signal: EXCITED (4/10)
+
+**Comment:** 👻 Ghost files detected and preserved! Found uncommitted changes in main branch - included them in feature branch to avoid losing work.
+
+**Ghost Files**:
+- `docs/coordinate-demo.js` (484 lines) - Interactive coordinate system demo
+- `landing-page/src/components/FloatingBubbles.tsx` (modified) - Physics updates
+
+**Context**: These files were created during previous work session but not committed to main. Rather than lose this work, ORCHESTRATOR preserved them in this feature branch.
+
+**Related PRP**: PRPs/landing-page-comprehensive-redesign.md (these files support landing page requirements)
+
+**Action**: Developer should review ghost files, validate they're needed, and commit or discard as appropriate.
+```
+
+### Autonomous Decision-Making Rules
+
+**ORCHESTRATOR makes final decisions when**:
+1. **Technical clarity exists** - One approach is clearly superior
+2. **Risk is acceptable** - Wrong choice won't cause production issues
+3. **User intent is clear** - Despite ambiguity, direction is evident
+4. **Time is critical** - Waiting would block other work
+
+**ORCHESTRATOR escalates to admin when**:
+1. **Business decision required** - Cost/benefit tradeoff needs input
+2. **Multiple valid approaches** - No technical winner, preference needed
+3. **High risk** - Wrong choice could cause production failure
+4. **Strategic direction** - Affects long-term architecture or roadmap
+
+### Execution After Recommendation
+
+**Standard Flow**:
+1. ORCHESTRATOR analyzes situation
+2. ORCHESTRATOR makes recommendation with reasoning
+3. **ORCHESTRATOR IMMEDIATELY EXECUTES** (doesn't wait)
+4. Leaves signal in PRP documenting decision and rationale
+5. Admin can review/override later if needed
+
+**Example**:
+```markdown
+### ORCHESTRATOR Decision Log
+
+**Situation**: Landing page architecture ambiguity (React vs HTML)
+
+**Recommendation**: Option A - Enhance existing HTML landing page
+
+**Reasoning**:
+- Lower risk (existing code is functional)
+- Faster delivery (weeks vs months)
+- User asked for "implementation" not "rewrite"
+- Can always migrate to React later if needed
+
+**Decision**: PROCEEDING with Option A (HTML enhancement)
+
+**Execution Started**: 2025-10-28 14:30 UTC
+**Branch**: feature/landing-page-comprehensive
+**PRPs Executed**: landing-page-comprehensive-redesign.md
+
+**Admin Override**: If this decision was wrong, admin can:
+1. Leave ATTENTION (10/10) signal in PRP
+2. ORCHESTRATOR will halt work and reassess
+3. New branch created for correct approach
+```
+
+### Important Lessons from Conversation History
+
+#### Lesson 1: PRP Architecture Mismatch is Common
+**Observed**: Multiple times in conversation history
+**Pattern**: PRPs describe ideal future state, code shows current reality
+**Solution**: ORCHESTRATOR always audits actual code before execution
+**Implementation**: Add "Current State Audit" step to all PRP workflows
+
+#### Lesson 2: Quality Gates Prevent 90% of Issues
+**Observed**: 100% of commits in history passed quality gates
+**Pattern**: `npm run validate` → zero errors → commit → no issues
+**Solution**: NEVER skip quality gates, even for "quick fixes"
+**Implementation**: Make quality gates blocking in all workflows
+
+#### Lesson 3: Signal-Driven Coordination is Optimal
+**Observed**: Z-up PRP shipped in 1 day with zero issues
+**Pattern**: WORRIED → CONFIDENT → COMPLETE (perfect signal flow)
+**Solution**: Use this pattern for ALL PRPs
+**Implementation**: Agents must leave signals after EVERY major action
+
+#### Lesson 4: FALSE READY Signals Cause Mid-Project Failure
+**Observed**: Phase 2 PRP marked READY with 25% DoR completion
+**Pattern**: Optimistic signal → start work → discover missing dependencies → project stalls
+**Solution**: ORCHESTRATOR validates DoR before accepting READY
+**Implementation**: Automated DoR checklist validation
+
+#### Lesson 5: Incremental Beats Big Bang
+**Observed**: User requested 6-8 week landing page rewrite
+**Better Approach**: Small, shippable increments
+**Solution**: Break large PRPs into weekly milestones
+**Implementation**: ORCHESTRATOR splits PRPs >2 weeks into phases
+
+#### Lesson 6: Documentation Drift is Real
+**Observed**: AGENTS.md had outdated workflow descriptions
+**Pattern**: Process evolves but docs lag behind
+**Solution**: ORCHESTRATOR updates AGENTS.md after every process change
+**Implementation**: Make ORCHESTRATOR sole editor of AGENTS.md
+
+#### Lesson 7: Ghost Files Contain Valuable Work
+**Observed**: Uncommitted coordinate-demo.js (484 lines) almost lost
+**Pattern**: Work session ends without commit → files orphaned
+**Solution**: Preserve ghost files in feature branches
+**Implementation**: Always `git add .` before branch creation
+
+#### Lesson 8: Admin Decisions Block Work
+**Observed**: Landing page work blocked waiting for architecture decision
+**Better Approach**: ORCHESTRATOR decides and executes autonomously
+**Solution**: Escalate only business/strategic decisions
+**Implementation**: Technical decisions made by ORCHESTRATOR immediately
+
+#### Lesson 9: Parallel Work is Faster
+**Observed**: User requested "simultaneously" work on multiple PRPs
+**Pattern**: Serial execution wastes time
+**Solution**: Launch agents in parallel when dependencies allow
+**Implementation**: Single message with multiple Task() calls
+
+#### Lesson 10: POST-RELEASE Validation is Critical
+**Observed**: New POST-RELEASE workflow added (SRE + QC agents)
+**Pattern**: Merging ≠ production ready
+**Solution**: Always run POST-RELEASE checks before npm publish
+**Implementation**: Make POST-RELEASE mandatory for all releases
+
+---
+
 ## 🚀 POST-RELEASE WORKFLOW
 
 ### Overview
