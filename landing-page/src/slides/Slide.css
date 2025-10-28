@@ -4,21 +4,25 @@
   position: relative;
   background: linear-gradient(135deg, #0a0e27 0%, #1a1e42 100%);
   color: white;
+  display: flex;
+  flex-direction: column;
 }
 
 .slide-content {
   width: 100%;
-  height: 100%;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 60px 80px;
   position: relative;
+  box-sizing: border-box;
 }
 
 .scene-container {
   flex: 1;
-  height: 80%;
+  height: 70vh;
+  max-height: 600px;
   max-width: 50%;
   border-radius: 16px;
   overflow: hidden;

@@ -7,11 +7,15 @@
 }
 
 .intro-content {
+  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
   padding: 40px 80px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .intro-main {
