@@ -1,5 +1,7 @@
 // User comments data from real GitHub issues and forum discussions
 const userComments = [
+    // THE BOOM BUBBLE - deltakosh maintainer response (special styling)
+    { text: "This is intentional because Babylon.js uses a system with Y up while Blender uses a system with Z up", author: "deltakosh", url: "https://github.com/BabylonJS/Babylon.js/issues/31", type: "maintainer", isSpecial: true },
     { text: "After changing to right-handed and z-up I expect everything to work with the z-up coordinate space", author: "pascalbayer", url: "https://github.com/BabylonJS/Babylon.js/issues/5843", type: "issue" },
     { text: "If I make a cone in Blender and point it upwards along the Z axis, it imports into Babylon as pointing along the Y axis", author: "User", url: "https://github.com/BabylonJS/Babylon.js/issues/31", type: "issue" },
     { text: "I tried using UE4 data directly in Babylon.js, but the resulting scene was completely messed up and terrible", author: "Forum User", url: "https://forum.babylonjs.com/t/how-to-convert-ue4-scene-to-babylon-js-coordinate-system-from-z-up-to-y-up/60029", type: "forum" },
@@ -58,13 +60,15 @@ class Bubble {
         this.comment = comment;
         this.container = container;
         this.index = index;
+        this.isSpecial = comment.isSpecial || false;
 
         // Physics properties
         this.x = Math.random() * (window.innerWidth - 200);
         this.y = Math.random() * (window.innerHeight - 100);
         this.vx = (Math.random() - 0.5) * 0.5;
         this.vy = (Math.random() - 0.5) * 0.5;
-        this.radius = 40 + Math.random() * 30;
+        // Special bubbles (deltakosh) are 2x larger
+        this.radius = this.isSpecial ? (80 + Math.random() * 40) : (40 + Math.random() * 30);
         this.mass = this.radius / 10;
 
         // Target position (for clustering)
@@ -97,11 +101,22 @@ class Bubble {
     createElement() {
         this.element = document.createElement('div');
         this.element.className = 'bubble';
+
+        // Add special class for deltakosh bubble
+        if (this.isSpecial) {
+            this.element.classList.add('bubble-special');
+        }
+
+        // Add type-specific class for styling
+        if (this.comment.type) {
+            this.element.classList.add(`bubble-${this.comment.type}`);
+        }
+
         this.element.style.width = `${this.radius * 2}px`;
         this.element.style.height = `${this.radius * 2}px`;
 
         // Truncate long text
-        const maxLength = 80;
+        const maxLength = this.isSpecial ? 120 : 80;
         const text = this.comment.text.length > maxLength
             ? this.comment.text.substring(0, maxLength) + '...'
             : this.comment.text;
@@ -111,6 +126,7 @@ class Bubble {
                 <div class="bubble-text">${text}</div>
                 <div class="bubble-meta">
                     <span class="bubble-author">${this.comment.author}</span>
+                    ${this.comment.type === 'maintainer' ? '<span class="bubble-badge bubble-badge-maintainer">Babylon.js Maintainer</span>' : ''}
                     ${this.comment.type === 'issue' ? '<span class="bubble-badge">GitHub Issue</span>' : ''}
                     ${this.comment.type === 'forum' ? '<span class="bubble-badge">Forum</span>' : ''}
                 </div>
@@ -334,11 +350,13 @@ class BubbleManager {
     constructor() {
         this.container = document.getElementById('bubbles-container');
         this.bubbles = [];
-        this.isClus tered = true;
-        this.clusterCenter = { x: window.innerWidth / 2, y: window.innerHeight * 0.4 };
+        this.isClustered = true;
+        // Cluster position at right side (85vw, 50vh) per PRP requirements
+        this.clusterCenter = { x: window.innerWidth * 0.85, y: window.innerHeight * 0.5 };
         this.lastScrollY = window.scrollY;
         this.scrollVelocity = 0;
         this.highlightedBubbles = [];
+        this.boomElement = null;
 
         this.init();
     }
@@ -425,13 +443,43 @@ class BubbleManager {
     explodeBubbles() {
         this.isClustered = false;
 
-        this.bubbles.forEach((bubble, index) => {
-            bubble.releaseFromCluster();
+        // Show BOOM animation
+        this.showBoom();
 
-            // Set new target positions spread across the screen
-            bubble.targetX = 100 + Math.random() * (window.innerWidth - 200);
-            bubble.targetY = 100 + Math.random() * (window.innerHeight - 200);
+        this.bubbles.forEach((bubble, index) => {
+            // Deltakosh (special) bubble releases LAST (after delay)
+            const delay = bubble.isSpecial ? 1500 : index * 50;
+
+            setTimeout(() => {
+                bubble.releaseFromCluster();
+
+                // Set new target positions spread across the screen
+                bubble.targetX = 100 + Math.random() * (window.innerWidth - 200);
+                bubble.targetY = 100 + Math.random() * (window.innerHeight - 200);
+            }, delay);
         });
+    }
+
+    showBoom() {
+        // Create BOOM element if it doesn't exist
+        if (!this.boomElement) {
+            this.boomElement = document.createElement('div');
+            this.boomElement.className = 'boom-text';
+            this.boomElement.textContent = '💥 BOOM!';
+            document.body.appendChild(this.boomElement);
+        }
+
+        // Position at cluster center
+        this.boomElement.style.left = `${this.clusterCenter.x}px`;
+        this.boomElement.style.top = `${this.clusterCenter.y}px`;
+
+        // Show with animation
+        this.boomElement.classList.add('boom-active');
+
+        // Hide after animation completes
+        setTimeout(() => {
+            this.boomElement.classList.remove('boom-active');
+        }, 1500);
     }
 
     handleScroll() {
@@ -456,7 +504,9 @@ class BubbleManager {
     }
 
     handleResize() {
-        this.clusterCenter.x = window.innerWidth / 2;
+        // Update cluster center to right side (85vw)
+        this.clusterCenter.x = window.innerWidth * 0.85;
+        this.clusterCenter.y = window.innerHeight * 0.5;
 
         // Update bubble positions
         this.bubbles.forEach(bubble => {
