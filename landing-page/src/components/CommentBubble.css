@@ -1,0 +1,84 @@
+.comment-bubble {
+  position: absolute;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+  max-width: 280px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.comment-bubble.focused {
+  max-width: 400px;
+  z-index: 200;
+}
+
+.comment-bubble-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.comment-author {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-name {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.comment-platform {
+  font-size: 11px;
+  opacity: 0.8;
+  text-transform: capitalize;
+}
+
+.comment-content {
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0.95;
+}
+
+.comment-bubble:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .comment-bubble {
+    max-width: 200px;
+    padding: 10px 12px;
+  }
+
+  .comment-bubble.focused {
+    max-width: 280px;
+  }
+
+  .comment-avatar {
+    width: 24px;
+    height: 24px;
+  }
+
+  .comment-name {
+    font-size: 12px;
+  }
+
+  .comment-content {
+    font-size: 12px;
+  }
+}

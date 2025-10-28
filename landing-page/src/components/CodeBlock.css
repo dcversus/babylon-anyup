@@ -1,0 +1,105 @@
+.code-block-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.code-block {
+  background: #1e1e1e;
+  border-radius: 8px;
+  padding: 24px;
+  overflow-x: auto;
+  font-size: 14px;
+  line-height: 1.6;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.code-block code {
+  font-family: 'Fira Code', 'Courier New', monospace;
+  color: #d4d4d4;
+}
+
+.code-block.line-numbers {
+  counter-reset: linenumber;
+}
+
+.code-block.line-numbers code {
+  display: block;
+}
+
+.code-block.line-numbers code::before {
+  counter-increment: linenumber;
+  content: counter(linenumber);
+  display: inline-block;
+  width: 3em;
+  padding-right: 1em;
+  margin-right: 1em;
+  color: #6e7681;
+  text-align: right;
+  user-select: none;
+}
+
+.gradient-overlay {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: linear-gradient(
+    to bottom right,
+    transparent 0%,
+    transparent 40%,
+    rgba(88, 101, 242, 0.1) 60%,
+    rgba(88, 101, 242, 0.2) 80%,
+    rgba(88, 101, 242, 0.3) 100%
+  );
+  pointer-events: none;
+  border-bottom-right-radius: 8px;
+}
+
+.github-link {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(88, 101, 242, 0.9);
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.github-link:hover {
+  background: rgba(88, 101, 242, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4);
+}
+
+@media (max-width: 768px) {
+  .code-block {
+    padding: 16px;
+    font-size: 12px;
+  }
+
+  .code-block.line-numbers code::before {
+    width: 2.5em;
+  }
+
+  .github-link {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+
+  .gradient-overlay {
+    width: 150px;
+    height: 150px;
+  }
+}
