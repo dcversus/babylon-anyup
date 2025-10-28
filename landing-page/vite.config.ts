@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // Use root path for custom domain (anyup.theedgestory.org)
-  base: '/',
+  // Use environment variable or default to subdirectory path
+  base: process.env.VITE_BASE_PATH || '/babylon-anyup/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
