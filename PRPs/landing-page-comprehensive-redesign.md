@@ -1,12 +1,405 @@
 # PRP: Landing Page Comprehensive Redesign - Full Requirements
 
-**Duration**: 4-6 weeks | **Status**: 🟡 In Progress
+**Duration**: 4-6 weeks | **Status**: 🟡 In Progress | **Last Updated**: 2025-10-28
 
 ## 🎯 Phase Overview
 
-Complete redesign of the babylon-anyup landing page with free continuous scrolling, 50+ floating comment bubbles, interactive story-driven sections, and comprehensive demonstrations. NO slide stops - completely free camera movement.
+Complete redesign of the babylon-anyup landing page with free continuous scrolling, 52 floating comment bubbles with cluster/BOOM/physics system, interactive story-driven sections, and comprehensive demonstrations. NO slide stops - completely free camera movement.
 
 **CRITICAL REQUIREMENT**: **FREE CONTINUOUS SCROLL** - No Swiper.js slide stops! User can scroll freely through all content. Bubbles float across ALL scenes and travel smoothly between sections based on scroll position.
+
+---
+
+## 📊 CURRENT STATE ANALYSIS (as of 2025-10-28)
+
+### ✅ IMPLEMENTED FEATURES
+
+#### Application Architecture
+- **Total Source Files**: 30 files (21 TypeScript, 9 CSS)
+- **Component Structure**: Modular React components with TypeScript
+- **Animation Library**: Framer Motion for all animations
+- **Styling**: CSS Modules with responsive design
+- **Build Tool**: Vite
+- **Deployment**: Dual deployment (custom domain + GitHub Pages)
+
+#### Core Functionality
+1. **Free Continuous Scroll** ✅
+   - No Swiper.js, pure CSS scroll
+   - Smooth scroll behavior enabled
+   - Slides at 92vh (except first at 100vh) for peek effect
+   - Scroll snapping with `scroll-snap-type: y proximity`
+
+2. **52 Floating Comment Bubbles** ✅
+   - Real comments from GitHub, forums, Stack Overflow
+   - Platform-specific styling (GitHub dark, Forum blue, SO orange)
+   - Avatar images, author names, dates, platform badges
+   - Direct links to original comments
+
+3. **Cluster/BOOM Animation System** ✅
+   - Initial state: All bubbles clustered at 85vw, 50vh
+   - Auto-BOOM after 2 seconds
+   - Manual trigger with click button
+   - Spring physics explosion (random directions, 30-50vw distance)
+   - Special deltakosh bubble at 2x scale
+   - "💥 BOOM!" text animation (8rem, red glow, multiple shadows)
+   - Re-clustering on scroll >15%
+   - Complete cycle: clustered → exploding → scattered → re-clustering
+
+4. **Slide System** ✅
+   - **Slide 1 (Intro)**: Title, description, rotating cube, switcher, installation guide
+   - **Slide 2 (Examples)**: 12 software cards (6 Z-up, 6 Y-up), Babylon scene with falling model
+   - **Slide 3 (Demand)**: "DON'T!" typography with 6 floating background requests
+   - **Slide 4 (Solutions)**: Problem/solution bubbles, conclusion box
+   - **Slide 5 (EdgeCraft)**: Code example, performance metrics, pain indicators
+   - **Slide 6 (Solution)**: Transformation comparison, benefits grid, CTA buttons
+
+5. **Interactive Elements** ✅
+   - Rotating 3D cube (6 faces, continuous rotation)
+   - "Enable Z-up!" switcher (auto-enables after 3s, spring animation)
+   - Copyable installation command with feedback
+   - Hover effects on all clickable elements
+   - Scroll indicator with bounce animation
+
+6. **Tech Footer** ✅
+   - npm badges (version, license, downloads)
+   - GitHub star button + iframe widget
+   - Resource links (docs, issues, EdgeCraft, npm)
+   - Copyright and licensing
+   - 3-column responsive grid
+
+#### Technical Specifications
+- **Bundle Size**: 6,080 kB (1,374 kB gzipped)
+- **Build Time**: ~6-8 seconds
+- **TypeScript**: Strict mode, zero errors
+- **ESLint**: Zero errors, zero warnings
+- **Test Coverage**: Not yet implemented
+- **Performance**: Smooth 60fps animations
+- **Responsive**: Mobile-first design with breakpoints at 480px, 768px, 1024px
+
+### ❌ NOT YET IMPLEMENTED
+
+1. **Refined Cluster Animation Sequence** (NEW REQUIREMENT)
+2. **Drag-and-Drop with Physics**
+3. **Per-Slide Bubble Pop-Out Behavior**
+4. **Timed Auto-Release (30s intervals, 2min total)**
+5. **Click-to-Release from Cluster**
+6. **Return-to-Cluster Physics with Slow Return**
+7. **Collision Detection Between Bubbles**
+8. **Slide-Specific Bubble Assignments**
+
+---
+
+## 🎬 REFINED ANIMATION SEQUENCE SPECIFICATION (2025-10-28 Update)
+
+### Overview
+The bubble cluster system needs a complete behavioral overhaul with per-slide animations, timed releases, click-to-release, drag-and-drop physics, and smart return-to-cluster behavior.
+
+### Initial State (Page Load)
+```
+State: CLUSTERED
+Position: 85vw, 50vh (right side, vertically centered)
+Scale: 0.4
+Opacity: 0.3
+Visible: Small preview of cards floating inside cluster
+Duration: Indefinite until user interaction
+```
+
+### Slide 1 (Intro) - Cluster Formation
+```
+Behavior: All 52 cards remain in cluster
+Preview: 2-3 cards visible with gentle rotating movement inside cluster
+Scale Pulsing: 0.38 ↔ 0.42 (2s cycle)
+Opacity Pulsing: 0.25 ↔ 0.35 (3s cycle)
+Click Action: None on Slide 1
+```
+
+### Slide 2 (Coordinate Systems in 3D) - Selective Pop-Out
+```
+Trigger: User scrolls into Slide 2 viewport
+Action: 4-6 topic-relevant cards pop out from cluster
+
+Release Sequence:
+1. Card selection: Pick cards related to "coordinate systems", "Z-up", "Y-up"
+2. Pop-out animation:
+   - Duration: 0.8s per card
+   - Delay: 0.2s between each card
+   - Motion: Spring physics (stiffness: 200, damping: 15)
+   - Direction: From cluster → assigned position around Babylon scene
+
+3. Card behavior after pop-out:
+   - Float near scene borders
+   - Gentle drift animation (5px radius)
+   - Scale: 1.0
+   - Opacity: 1.0
+   - Interactive: Clickable, hoverable
+
+4. Remaining cards in cluster:
+   - Count: 46-48 cards
+   - Still visible inside cluster preview
+   - Continue pulsing animation
+```
+
+### Slide 3 (Demand/DON'T!) - Timed Auto-Release
+```
+Trigger: User scrolls into Slide 3 viewport
+Action: Cards auto-release one-by-one every 30 seconds
+
+Release Timing:
+- T+0s: First card pops out
+- T+30s: Second card pops out
+- T+60s: Third card pops out
+- T+90s: Fourth card pops out
+- T+120s (2 minutes): Last auto-release
+
+Pop-Out Physics:
+1. Card accelerates from cluster with force
+2. Travels with inertia toward screen border
+3. Speed gradually decreases as it approaches edge
+4. Stops at border (with slight overshoot + settle)
+5. Begins slow drift animation
+
+Border Positioning Rules:
+- Target: Random position along screen edges
+- Margin: 20px from actual edge
+- Distribution: Evenly spread around perimeter
+- No overlap: Minimum 80px between cards
+
+After 2 Minutes:
+- Stop auto-releases
+- Show "DON'T!" animation (already implemented)
+- Display maintainer bubble (deltakosh, black styling, clickable)
+- Maintainer bubble scale: 1.3x normal size
+- All other cards remain at borders in floating state
+```
+
+### Slide 4+ (Solutions, EdgeCraft, ANYUP) - Cluster Return on Scroll
+```
+Trigger: User scrolls to new slide section
+Action: ALL released cards rapidly return to cluster
+
+Return Animation:
+1. Speed: Fast return (0.6s duration)
+2. Easing: ease-in-out
+3. Stagger: 0.05s delay between each card
+4. Scale down: 1.0 → 0.4
+5. Opacity fade: 1.0 → 0.3
+6. Final position: Back in cluster at 85vw, 50vh
+
+Result: Clean slate for next section
+```
+
+### Click-to-Release from Cluster
+```
+User Action: Click on cluster indicator button
+Behavior:
+1. Pop out ONE card from cluster (FIFO order)
+2. Animation:
+   - Spring physics launch
+   - Random direction (angle: 0-360°)
+   - Distance: 30-50vw from cluster center
+   - Rotation: Random ±180°
+3. After launch:
+   - Card speeds toward nearest border
+   - Slows down gradually
+   - Stops at border
+   - Begins slow return animation after 3s
+
+4. Update cluster count:
+   - Cluster button shows: "51 💬 Click to release"
+   - Decrements with each release
+   - When empty: Button disappears
+
+5. Repeat until cluster is empty
+```
+
+### Return-to-Cluster Physics (Card-Specific Behavior)
+```
+Trigger Conditions:
+- Card has been at border for 3+ seconds
+- No drag interaction in progress
+- Cluster is visible on screen
+
+Return Motion:
+1. Phase 1: Slow start (0-1s)
+   - Acceleration: Linear increase from 0
+   - Direction: Toward cluster center
+   - Duration: 1s
+
+2. Phase 2: Steady motion (1-4s)
+   - Speed: Constant moderate velocity
+   - Path: Straight line to cluster
+   - Duration: 3s
+
+3. Phase 3: Deceleration (4-5s)
+   - Speed: Gradual slowdown
+   - Scale down: 1.0 → 0.4
+   - Opacity fade: 1.0 → 0.3
+   - Duration: 1s
+
+4. Phase 4: Re-enter cluster (5s)
+   - Position: Snap to cluster center
+   - State: CLUSTERED
+   - Visible: In cluster preview
+
+Total Return Time: 5 seconds per card
+```
+
+### Drag-and-Drop Physics System
+```
+Drag Initiation:
+- Hover reveals grab indicator (🤚 icon in corner)
+- User clicks and holds to grab
+- Card z-index increases to 999
+- Cursor changes to grabbing
+
+During Drag:
+- Card follows mouse/touch position
+- Shadow intensifies (larger, darker)
+- Scale increases: 1.0 → 1.1
+- Other cards move slightly away (repulsion radius: 100px)
+
+Drop Physics:
+1. Capture release velocity from mouse movement
+2. Apply velocity vector to card
+3. Card travels in release direction with inertia
+4. Friction applied: velocity *= 0.95 per frame
+5. Collision detection with other cards:
+   - Elastic collision
+   - Energy transfer between cards
+   - Bounce angle based on impact vector
+6. Gradual slowdown over 2-3 seconds
+7. Final stop position
+8. After 3s stopped: Begin return-to-cluster animation
+```
+
+### Collision Detection & Response
+```
+Detection Range: 60px radius from card center
+
+Collision Response:
+1. Detect overlap between two cards
+2. Calculate normal vector from centers
+3. Apply elastic bounce:
+   - Velocity reversal along normal
+   - Energy conservation (total momentum preserved)
+4. Add slight random wobble
+5. Play subtle bounce sound effect (optional)
+
+Collision with Screen Edges:
+- Detect when card position < 20px from edge
+- Reverse velocity perpendicular to edge
+- Apply damping: velocity *= 0.7
+- Create "soft wall" effect (not hard bounce)
+```
+
+### Slide-Specific Bubble Assignments
+```
+Slide 1 (Intro): 0 cards released
+Slide 2 (Coordinate Systems): 4-6 cards (Z-up/Y-up related)
+Slide 3 (Demand): 10-15 cards (timed releases)
+Slide 4 (Solutions): 0 cards (all return to cluster)
+Slide 5 (EdgeCraft): 5-8 cards (performance/code related)
+Slide 6 (ANYUP): 3-5 cards (solution/success related)
+
+Card Selection Algorithm:
+1. Filter comments by keywords:
+   - Slide 2: "coordinate", "Z-up", "Y-up", "axis", "rotation"
+   - Slide 3: "need", "want", "support", "please", "request"
+   - Slide 5: "performance", "code", "transform", "matrix"
+   - Slide 6: "solution", "works", "fixed", "thanks", "great"
+
+2. Randomly select from filtered set
+3. Ensure variety: Mix GitHub, forum, SO sources
+4. Prioritize high-quality comments (length > 50 chars)
+```
+
+---
+
+## 🛠️ IMPLEMENTATION ROADMAP
+
+### Phase A: Core Physics Engine (Estimated: 4-6 hours)
+**Priority**: HIGH - Foundation for all other features
+
+1. **Velocity System**
+   - Track velocity (vx, vy) for each card
+   - Update position based on velocity each frame
+   - Apply friction: `velocity *= 0.95`
+
+2. **Collision Detection**
+   - Implement circle collision (60px radius)
+   - Detect card-to-card overlaps
+   - Detect screen edge collisions
+
+3. **Collision Response**
+   - Elastic bounce calculations
+   - Energy conservation
+   - Screen edge damping
+
+4. **Integration**
+   - RequestAnimationFrame loop
+   - State management for physics
+   - Performance optimization (<16ms per frame)
+
+### Phase B: Drag-and-Drop System (Estimated: 3-4 hours)
+**Priority**: HIGH - Critical user interaction
+
+1. **Grab Indicator**
+   - Show 🤚 icon on hover
+   - Corner positioning
+   - Fade in/out animation
+
+2. **Drag Handlers**
+   - Mouse/touch event listeners
+   - Track mouse velocity during drag
+   - Update card position in real-time
+
+3. **Drop Physics**
+   - Capture release velocity
+   - Apply impulse to card
+   - Trigger physics simulation
+
+### Phase C: Advanced Cluster Behaviors (Estimated: 6-8 hours)
+**Priority**: MEDIUM - Enhances current system
+
+1. **Slide-Specific Pop-Outs**
+   - Viewport detection for each slide
+   - Keyword-based card filtering
+   - Triggered releases on scroll
+
+2. **Timed Auto-Release**
+   - Interval system (30s)
+   - Queue management
+   - 2-minute limit
+
+3. **Click-to-Release**
+   - Single-card pop-out
+   - Update cluster count
+   - FIFO order
+
+4. **Return-to-Cluster**
+   - 5-phase animation
+   - Acceleration → constant → deceleration
+   - Smart timing (3s wait + 5s return)
+
+### Phase D: Polish & Optimization (Estimated: 2-3 hours)
+**Priority**: LOW - Nice-to-have
+
+1. **Performance**
+   - Optimize collision detection (spatial hashing)
+   - Reduce unnecessary re-renders
+   - Bundle size optimization
+
+2. **Visual Polish**
+   - Smooth transitions
+   - Shadow effects during drag
+   - Repulsion animation
+
+3. **Mobile Optimization**
+   - Touch events
+   - Smaller hit areas
+   - Reduced particle count on mobile
+
+**Total Estimated Effort**: 15-21 hours
 
 ---
 
