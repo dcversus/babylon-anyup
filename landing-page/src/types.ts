@@ -32,3 +32,21 @@ export interface SlideConfig {
   hasBabylonScene?: boolean;
   sceneType?: 'rotation' | 'import' | 'problem' | 'solution';
 }
+
+// Physics-related types
+export interface Vec2 {
+  x: number;
+  y: number;
+}
+
+export interface BubblePhysics {
+  position: Vec2;     // Current position in pixels
+  velocity: Vec2;     // Current velocity in pixels/frame
+  targetPosition?: Vec2; // Target position for return-to-cluster
+  isDragging: boolean;
+  isReturning: boolean;
+  timeAtBorder: number; // Time spent at border (for auto-return)
+  lastCollisionTime: number;
+}
+
+export type BubbleState = 'clustered' | 'exploding' | 'scattered' | 're-clustering' | 'dragging' | 'returning' | 'at-border';
