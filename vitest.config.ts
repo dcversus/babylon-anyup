@@ -11,9 +11,13 @@ export default defineConfig({
         'node_modules/',
         'dist/',
         'docs/',
+        'landing-page/',
+        'benchmarks/',
         '**/*.test.ts',
         '**/*.config.ts',
+        '**/*.bench.ts',
         'examples/',
+        'src/index.ts', // Barrel export file - no logic to test
       ],
       thresholds: {
         lines: 80,
