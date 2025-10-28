@@ -1,9 +1,10 @@
 // User comments data from real GitHub issues and forum discussions
+// Keywords for slide-specific filtering: coordinate-systems, performance, solution, demand
 const userComments = [
     // THE BOOM BUBBLE - deltakosh maintainer response (special styling)
-    { text: "This is intentional because Babylon.js uses a system with Y up while Blender uses a system with Z up", author: "deltakosh", url: "https://github.com/BabylonJS/Babylon.js/issues/31", type: "maintainer", isSpecial: true },
-    { text: "After changing to right-handed and z-up I expect everything to work with the z-up coordinate space", author: "pascalbayer", url: "https://github.com/BabylonJS/Babylon.js/issues/5843", type: "issue" },
-    { text: "If I make a cone in Blender and point it upwards along the Z axis, it imports into Babylon as pointing along the Y axis", author: "User", url: "https://github.com/BabylonJS/Babylon.js/issues/31", type: "issue" },
+    { text: "This is intentional because Babylon.js uses a system with Y up while Blender uses a system with Z up", author: "deltakosh", url: "https://github.com/BabylonJS/Babylon.js/issues/31", type: "maintainer", isSpecial: true, keywords: ["coordinate-systems", "y-up", "z-up", "blender", "demand"] },
+    { text: "After changing to right-handed and z-up I expect everything to work with the z-up coordinate space", author: "pascalbayer", url: "https://github.com/BabylonJS/Babylon.js/issues/5843", type: "issue", keywords: ["coordinate-systems", "z-up", "right-handed"] },
+    { text: "If I make a cone in Blender and point it upwards along the Z axis, it imports into Babylon as pointing along the Y axis", author: "User", url: "https://github.com/BabylonJS/Babylon.js/issues/31", type: "issue", keywords: ["coordinate-systems", "blender", "z-up", "y-up", "axis"] },
     { text: "I tried using UE4 data directly in Babylon.js, but the resulting scene was completely messed up and terrible", author: "Forum User", url: "https://forum.babylonjs.com/t/how-to-convert-ue4-scene-to-babylon-js-coordinate-system-from-z-up-to-y-up/60029", type: "forum" },
     { text: "Camera position/target needs to be provided in Y-Up while mesh position coordinates are handled in Z-Up", author: "Forum User", url: "https://forum.babylonjs.com/t/unexpected-behavior-for-z-up-right-handed-coordinate-system/1090", type: "forum" },
     { text: "Y and Z axes inverted only in scaling property when exporting from Blender", author: "Forum User", url: "https://forum.babylonjs.com/t/problem-y-and-z-axes-inverted-only-in-scaling-property/20913", type: "forum" },
@@ -75,6 +76,13 @@ class Bubble {
         this.targetX = this.x;
         this.targetY = this.y;
         this.returnSpeed = 0.02;
+
+        // Return-to-cluster timing (3s wait + 5s return per PRP)
+        this.stationaryTime = 0;
+        this.waitTimeBeforeReturn = 3000; // 3 seconds
+        this.returnDuration = 5000; // 5 seconds
+        this.returnStartTime = null;
+        this.isReturningToCluster = false;
 
         // Drag properties
         this.isDragging = false;
@@ -215,21 +223,67 @@ class Bubble {
             return;
         }
 
-        // Return to target position if in cluster or floating
+        // Check if bubble is nearly stationary (for return-to-cluster timing)
+        const isStationary = Math.abs(this.vx) < 0.1 && Math.abs(this.vy) < 0.1;
+
+        // Return to target position if in cluster
         if (this.isInCluster) {
             const dx = this.clusterX - this.x;
             const dy = this.clusterY - this.y;
             this.vx += dx * this.returnSpeed;
             this.vy += dy * this.returnSpeed;
-        } else {
-            const dx = this.targetX - this.x;
-            const dy = this.targetY - this.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+        }
+        // Handle timed return-to-cluster (3s wait + 5s smooth return)
+        else if (!this.isInCluster && isStationary) {
+            // Accumulate stationary time (roughly 16ms per frame at 60fps)
+            this.stationaryTime += 16;
 
-            if (distance > 50) {
-                this.vx += dx * this.returnSpeed * 0.5;
-                this.vy += dy * this.returnSpeed * 0.5;
+            // After 3s wait, start return animation
+            if (this.stationaryTime >= this.waitTimeBeforeReturn && !this.isReturningToCluster) {
+                this.isReturningToCluster = true;
+                this.returnStartTime = Date.now();
+                this.startX = this.x;
+                this.startY = this.y;
+                // Visual indicator: slightly shrink bubble
+                this.targetScale = 0.8;
             }
+
+            // Execute 5-second smooth return to cluster
+            if (this.isReturningToCluster) {
+                const elapsed = Date.now() - this.returnStartTime;
+                const progress = Math.min(elapsed / this.returnDuration, 1.0);
+
+                // Easing function: ease-in-out cubic for smooth movement
+                const eased = progress < 0.5
+                    ? 4 * progress * progress * progress
+                    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+                // Interpolate position from start to cluster center
+                const targetX = this.clusterX || window.innerWidth * 0.85;
+                const targetY = this.clusterY || window.innerHeight * 0.5;
+
+                this.x = this.startX + (targetX - this.startX) * eased;
+                this.y = this.startY + (targetY - this.startY) * eased;
+
+                // Clear velocity during return animation
+                this.vx = 0;
+                this.vy = 0;
+
+                // When return complete, re-cluster bubble
+                if (progress >= 1.0) {
+                    this.isInCluster = true;
+                    this.isReturningToCluster = false;
+                    this.stationaryTime = 0;
+                    this.targetScale = 0.6;
+                    this.targetOpacity = 0.4;
+                }
+            }
+        }
+        // Normal floating behavior (not stationary)
+        else if (!this.isInCluster && !isStationary) {
+            // Reset stationary timer if bubble starts moving again
+            this.stationaryTime = 0;
+            this.isReturningToCluster = false;
         }
 
         // Apply friction
@@ -319,12 +373,20 @@ class Bubble {
         this.clusterY = y;
         this.targetScale = 0.6;
         this.targetOpacity = 0.4;
+        // Store cluster position for return animation
+        this.startX = this.x;
+        this.startY = this.y;
     }
 
     releaseFromCluster() {
         this.isInCluster = false;
         this.targetScale = 1;
         this.targetOpacity = 0.9;
+
+        // Reset return timing
+        this.stationaryTime = 0;
+        this.returnStartTime = null;
+        this.isReturningToCluster = false;
 
         // Add explosion force
         const angle = Math.random() * Math.PI * 2;
