@@ -335,6 +335,79 @@ On Slide 3 ("We Want Support" text), cards arrange in formation around center te
 - Scale: 1 → 1.05
 - Add subtle shadow
 
+##### 5. Clickable Solution Cards with Comment Pop-outs (NEW)
+**Requirement**: Three specific solution cards trigger comment bubble pop-outs
+
+**Card 1: ❌ Mirrored textures**
+- Click triggers: Related comment bubble pops out from card
+- Comment content: Real example about texture mirroring issues
+- Animation: Bounce around screen (pinball-style, 3-5 bounces)
+- Final state: Stops floating, remains visible
+- Comment author: Community member (forum/GitHub)
+
+**Card 2: 🐌 Performance hit**
+- Click triggers: Performance complaint comment
+- Comment content: "This slows down my scene by 40%..." (real quote)
+- Animation: Same bounce behavior as Card 1
+- Final state: Stops floating after settling
+
+**Card 3: 📝 100+ lines of code**
+- Click triggers: Code complexity comment
+- Comment content: Updated text about code maintenance burden
+- Animation: Same bounce behavior
+- Final state: Stops floating after settling
+
+**Technical Implementation**:
+```typescript
+interface SolutionCard {
+  icon: string;
+  title: string;
+  description: string;
+  comment?: {
+    author: string;
+    avatar: string;
+    content: string;
+    platform: 'github' | 'forum' | 'stackoverflow';
+    url: string;
+  };
+}
+
+const handleCardClick = (card: SolutionCard) => {
+  if (!card.comment) return;
+
+  // 1. Pop out comment bubble from card position
+  const cardRect = cardRef.current.getBoundingClientRect();
+  const initialPos = { x: cardRect.x, y: cardRect.y };
+
+  // 2. Apply bounce physics (3-5 bounces)
+  const bouncePhysics = {
+    energy: 60, // Medium-high energy
+    velocity: { x: randomRange(-15, 15), y: randomRange(-20, -10) },
+    gravity: 0.5,
+    friction: 0.95,
+    maxBounces: 5
+  };
+
+  // 3. After settling, stop all physics
+  onBounceComplete(() => {
+    bubble.physics.velocity = { x: 0, y: 0 };
+    bubble.state = 'static'; // No more floating
+  });
+};
+```
+
+**Comment Content Examples**:
+- **Mirrored textures**: "Why are all my textures flipped? Spent 2 hours debugging only to find it's the coordinate system mismatch. Even after fixing, some textures still look wrong."
+- **Performance hit**: "This transformation adds a 40% performance overhead to my scene. With 1000+ meshes, it's completely unusable. Had to revert back to manual Y-up exports."
+- **100+ lines of code**: "I wrote 127 lines just to handle coordinate conversion. Now every time I import a model, I have to remember to run it through this pipeline. It's unmaintainable."
+
+**Behavior**:
+- Only these 3 cards are clickable (others remain static)
+- Each can be clicked multiple times (comment re-animates)
+- Comments persist after animation (don't disappear)
+- Multiple comments can be visible simultaneously
+- Comments don't interfere with other floating bubbles
+
 ### **PHASE 2F: Footer Redesign** (Week 6)
 
 #### Current State
