@@ -1679,6 +1679,194 @@ When agents CANNOT proceed without admin input, use this format:
 
 ---
 
+### 🚨 NEVER PAPEROVER FAILURES (CRITICAL)
+
+**Core Principle**: **ALWAYS INVESTIGATE, NEVER DISMISS, ALWAYS FIX**
+
+When CI fails, tests fail, or quality gates fail - **NEVER make excuses, NEVER assume it's "flaky", NEVER paperover**.
+
+#### The Papering-Over Anti-Pattern
+
+**❌ WRONG - Papering Over Failures**:
+```
+developer: "CI is red, but it might be flaky tests or pre-existing issues"
+developer: "Main branch also has failures, so it's not our fault"
+developer: "Tests pass locally, so CI must be wrong"
+developer: "This is just documentation, failures don't matter"
+→ Converts PR to ready despite failures
+→ ❌ DESTROYS TEAM TRUST, DEGRADES QUALITY
+```
+
+**✅ CORRECT - Taking Ownership**:
+```
+developer: "CI is red - I must investigate and fix"
+developer: "Checking actual test output..."
+developer: "Found root cause: [specific issue]"
+developer: "Fixing immediately..."
+→ Fixes issue, re-runs CI, verifies green
+→ ✅ MAINTAINS QUALITY, SUPPORTS TEAM
+```
+
+#### Absolute Rules
+
+**NEVER Paperover When:**
+1. **CI is red** - ALWAYS investigate root cause
+2. **Tests fail** - ALWAYS fix, never assume "flaky"
+3. **Main branch is red** - HELP THE TEAM, fix it now
+4. **Quality gates fail** - ALWAYS address, never dismiss
+5. **"It works locally"** - Investigate environment differences
+6. **"Not caused by my changes"** - Still your responsibility to fix
+
+**ALWAYS Do This:**
+1. **Investigate root cause** - Read actual error messages, logs, output
+2. **Fix the issue** - Don't stop until CI is green
+3. **Help the team** - If main is red, fix it (even if not your fault)
+4. **Leave signal** - Document investigation and fix in PRP
+5. **Verify green** - Ensure ALL checks pass before proceeding
+6. **Ask for help if stuck** - Leave CONFUSED/WORRIED signal
+
+#### Signal for Seeking Help
+
+When you cannot fix CI failures alone, use **CONFUSED (5/10)** or **WORRIED (6/10)**:
+
+```markdown
+### [Date] - [Agent] - Signal: CONFUSED (5/10)
+
+**Comment:** CI failures investigated, root cause unclear - need help
+
+**Investigation:**
+- Error message: [exact error from CI logs]
+- Local behavior: [tests pass/fail locally]
+- Changes made: [what I changed]
+- Attempts to fix: [what I tried]
+- Environment: [Node version, OS, etc.]
+
+**Root Cause Analysis:**
+- [What I discovered]
+- [What's confusing/unclear]
+- [Why I'm stuck]
+
+**Request:**
+- Need help understanding [specific issue]
+- OR: Need team member with [specific expertise]
+- OR: Need access to [specific resource/logs]
+
+**Impact:**
+- PR blocked until resolved
+- [X] tests failing
+- Estimated complexity: [simple/medium/complex]
+```
+
+#### Main Branch Red = Team Responsibility
+
+**If main branch has failing CI:**
+
+1. **DO NOT IGNORE** - This is a team emergency
+2. **DO NOT ASSUME** - "Someone else will fix it"
+3. **DO INVESTIGATE** - Check what's broken
+4. **DO FIX** - Create separate PR to fix main branch
+5. **DO NOTIFY** - Leave signal in affected PRP
+
+**Workflow:**
+```bash
+# 1. Discover main branch red
+git checkout main
+git pull
+npm run test  # Reproduce failure
+
+# 2. Create fix branch
+git checkout -b fix/ci-failures-main
+
+# 3. Investigate and fix
+# [Read logs, fix issues, run tests]
+
+# 4. Verify green
+npm run validate
+
+# 5. Commit and PR
+git commit -m "fix(ci): resolve test failures in main branch"
+git push origin fix/ci-failures-main
+gh pr create --title "fix(ci): Resolve test failures" --body "..."
+
+# 6. Leave signal in PRP
+# Document what was broken and how you fixed it
+```
+
+#### Why This Matters
+
+**Papering over failures:**
+- ❌ Degrades codebase quality over time
+- ❌ Destroys team trust ("they don't care about quality")
+- ❌ Causes production incidents
+- ❌ Creates technical debt
+- ❌ Makes future debugging harder
+- ❌ Violates team contract
+
+**Taking ownership:**
+- ✅ Maintains high quality bar
+- ✅ Builds team trust
+- ✅ Prevents production issues
+- ✅ Creates learning opportunities
+- ✅ Makes codebase healthier
+- ✅ Honors team commitment
+
+#### Examples of Papering Over (NEVER DO THIS)
+
+| Excuse | Why It's Wrong | What To Do Instead |
+|--------|----------------|-------------------|
+| "Tests are flaky" | Flaky tests indicate real issues | Fix the flaky test, investigate race conditions |
+| "Main is red too" | Your job to help team | Create PR to fix main branch |
+| "Works locally" | Environment differences matter | Debug CI environment, add logging |
+| "Just docs" | Quality matters everywhere | Fix failures before merging |
+| "Not my code" | Team ownership | Fix it anyway, support your team |
+| "CI is slow" | Not an excuse | Wait for green, fix issues found |
+
+#### The Team Contract
+
+**By joining this codebase, you commit to:**
+1. **Never merge red CI** - All checks must pass
+2. **Fix main if red** - Help the team, even if not your fault
+3. **Investigate thoroughly** - Read logs, understand root causes
+4. **Ask for help** - Leave CONFUSED/WORRIED signal if stuck
+5. **Maintain quality** - Quality is everyone's job
+6. **Take ownership** - If you touch it, you own it
+
+**This is not optional. This is the standard.**
+
+#### Escalation Path
+
+If you truly cannot fix the issue:
+
+1. **Leave CONFUSED (5/10) signal** with detailed investigation
+2. **Document everything tried** - Show your work
+3. **Identify expertise needed** - "Need someone familiar with [X]"
+4. **Estimate impact** - How critical is this?
+5. **ORCHESTRATOR scans** - Will elevate to ATTENTION if critical
+6. **Team responds** - Someone with expertise will help
+
+**DO NOT:**
+- Give up and merge anyway
+- Assume "someone else will fix"
+- Leave vague "CI is broken" comments
+- Disappear without documenting
+
+#### Key Takeaway
+
+**GREEN CI IS NON-NEGOTIABLE**
+
+If CI is red:
+1. Stop
+2. Investigate
+3. Fix
+4. Verify green
+5. Only then proceed
+
+**No exceptions. No excuses. No papering over.**
+
+**This protects the team, the codebase, and production.**
+
+---
+
 ### Important Lessons from Conversation History
 
 #### Lesson 1: PRP Architecture Mismatch is Common
