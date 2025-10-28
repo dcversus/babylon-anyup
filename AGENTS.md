@@ -58,6 +58,132 @@ Task(aqa-engineer): "Define quality gates and test strategy for {feature}"
 
 ---
 
+## ⚠️ MANDATORY: QUALITY GATES (RUN BEFORE EVERY RESPONSE)
+
+**🚨 CRITICAL: AI AGENTS MUST ALWAYS CHECK QUALITY BEFORE RESPONDING 🚨**
+
+### Pre-Response Quality Checklist
+
+**Before sending ANY response that modifies code, landing pages, or documentation, you MUST:**
+
+1. **Run TypeScript Check** (Zero Errors Required)
+   ```bash
+   npm run typecheck
+   ```
+   - **MUST PASS** - Zero TypeScript errors allowed
+   - If errors exist: Fix them before responding
+   - Never send a response with TypeScript errors
+
+2. **Run Linting** (Zero Errors/Warnings Required)
+   ```bash
+   npm run lint
+   ```
+   - **MUST PASS** - Zero ESLint errors/warnings allowed
+   - If errors exist: Fix them before responding
+   - Never send a response with lint errors
+
+3. **Run Tests** (Periodically - At Least Every 3-5 Code Changes)
+   ```bash
+   npm run test
+   npm run test:coverage
+   ```
+   - All tests must pass
+   - Coverage must be >85%
+   - Run tests before major milestones
+
+4. **Run Full Validation** (Before Completing Any Feature)
+   ```bash
+   npm run validate
+   ```
+   - This runs: typecheck + lint + test + build
+   - **MUST PASS** before marking any todo as completed
+   - **MUST PASS** before claiming "feature complete"
+
+### Quality Gate Workflow
+
+```typescript
+// MANDATORY WORKFLOW FOR EVERY CODE CHANGE
+
+1. Write/modify code
+2. Run `npm run typecheck` → Fix any errors
+3. Run `npm run lint` → Fix any errors
+4. Every 3-5 changes: Run `npm run test`
+5. Before completing feature: Run `npm run validate`
+6. Only then respond to user with results
+
+// ❌ NEVER DO THIS:
+- Skip typecheck/lint and send response
+- Assume code works without checking
+- Respond first, check later
+- Ignore quality gate failures
+
+// ✅ ALWAYS DO THIS:
+- Check quality BEFORE responding
+- Fix all errors BEFORE responding
+- Validate frequently during development
+- Report quality status in response
+```
+
+### Quality Status Template
+
+When responding about code changes, always include:
+
+```markdown
+## Quality Status ✅
+- TypeScript: ✅ Zero errors
+- ESLint: ✅ Zero errors/warnings
+- Tests: ✅ All passing (123/123)
+- Coverage: ✅ 87.5% (target: 85%)
+```
+
+### Landing Page Development (Special Rules)
+
+When working on landing pages (`docs/` directory):
+
+1. **Browser Cache Issues:**
+   - Hard refresh: Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows)
+   - Clear browser cache
+   - Check browser console for JavaScript errors
+   - Verify dev server is running and showing latest changes
+
+2. **JavaScript Validation:**
+   - Check browser console for errors
+   - Verify all scripts are loading
+   - Test all interactive features manually
+   - Confirm animations are working
+
+3. **Before Claiming "Complete":**
+   - View page in browser
+   - Test all interactions
+   - Verify responsive design on different screen sizes
+   - Check browser console for errors
+   - Test all links work
+
+### When to Run Each Check
+
+| Check | When | Frequency |
+|-------|------|-----------|
+| `npm run typecheck` | After any TypeScript modification | Every code change |
+| `npm run lint` | After any code modification | Every code change |
+| `npm run test` | After completing logical unit of work | Every 3-5 changes |
+| `npm run test:coverage` | Before marking feature complete | End of feature |
+| `npm run validate` | Before completing ANY feature | Feature completion |
+| `npm run build` | Before publishing/release | Pre-release only |
+
+### Enforcement
+
+**This is NOT optional. This is MANDATORY.**
+
+If you send a response with:
+- TypeScript errors → User will reject
+- Lint errors → User will reject
+- Failing tests → User will reject
+- Low coverage → User will reject
+
+**Save time: Check quality BEFORE responding, not after user rejection.**
+
+---
+
 ## 📋 CRITICAL: DOCUMENTATION DISCIPLINE
 
 ### THE THREE-FILE RULE (MANDATORY)
