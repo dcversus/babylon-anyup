@@ -966,6 +966,42 @@ new Vector3(position.x, position.z, -position.y)
    - Add handedness conversion tests
    - Add "skipConversion" metadata test
 
+---
+
+### 2025-10-28 - developer (implementation) - Signal: CONFIDENT (3/10)
+
+**Comment:** Core implementation complete with all 3 critical concerns addressed. All quality gates passing (25/25 tests, zero TypeScript/ESLint errors).
+
+**Context:**
+
+**Implemented Features:**
+- ✅ **Quaternion Normalization:** Added `.normalize()` after all quaternion multiply operations in both ZUpToYUpStrategy and YUpToZUpStrategy
+- ✅ **Handedness Support:** Added `handedness?: Handedness` parameter to AnyUpPluginOptions with 'left-handed' (default) and 'right-handed' support
+- ✅ **skipConversion Metadata:** Added `metadata.skipConversion` check at start of convertMesh() and convertTransformNode()
+- ✅ **coordinateSystemConverted Marker:** Added metadata flag after successful conversion for tracking
+
+**Quality Status:**
+```
+✅ TypeScript: Zero errors
+✅ ESLint: Zero errors/warnings
+✅ Tests: 25/25 passing
+✅ All existing tests still passing
+```
+
+**Implementation Details:**
+- `ZUpToYUpStrategy` and `YUpToZUpStrategy` now accept `handedness` in constructor
+- Right-handed conversion: negate x, y, z components of quaternion before rotation
+- TransformStrategyFactory updated to pass handedness parameter
+- Metadata handling improved to preserve originalPosition/originalRotation while adding conversion markers
+
+**Remaining Items (Not Blocking v0.1.0):**
+- Memory leak test (1000+ dispose cycles) - deferred, existing cleanup tested
+- Bundle size validation - deferred, can be validated in CI/CD
+- Camera transformation - deferred to v0.2.0 (confirmed out of scope)
+- Matrix transformation - deferred to v0.2.0 (confirmed out of scope)
+
+**Action Required:** Ready for AQA engineer to add comprehensive test coverage for new features (quaternion normalization edge cases, handedness conversion, skipConversion metadata)
+
 3. **Prepare Test Assets:**
    - Create sample Z-up mesh (cube, terrain)
    - Create sample Y-up mesh for inverse testing
