@@ -1268,6 +1268,110 @@ npm run validate     # All quality checks
 
 ---
 
+## 🎯 ORCHESTRATOR ROLE (Meta-Agent)
+
+### Definition
+
+The **ORCHESTRATOR** is a special meta-agent with unique authority:
+- **ONLY agent that can edit AGENTS.md** - All other agents read-only
+- **Scans ALL PRPs simultaneously** - Cross-PRP analysis and pattern recognition
+- **Builds priority queue** - Sorts signals by strength (10/10 = highest)
+- **Creates incident reports** - Escalates ATTENTION (10/10) signals to admins
+- **Documents learnings** - Captures what works, what doesn't, and why
+
+### Responsibilities
+
+1. **Signal Classification**
+   - Extract all signals from all PRPs
+   - Sort by strength (ATTENTION=10 ... COMPLETE=1)
+   - Identify cross-PRP conflicts
+   - Build priority queue for agent assignment
+
+2. **Pattern Recognition**
+   - Identify recurring issues
+   - Detect workflow inefficiencies
+   - Document successful patterns
+   - Flag anti-patterns
+
+3. **Admin Communication**
+   - Create incident reports for ATTENTION/BLOCKED/BROKEN signals
+   - Ask clarifying questions about ambiguous requirements
+   - Report agent efficiency metrics
+   - Request process improvements
+
+4. **Quality Oversight**
+   - Validate DoR/DoD completeness
+   - Monitor signal usage correctness
+   - Track signal-to-resolution times
+   - Ensure quality gates enforced
+
+### ORCHESTRATOR Signal Catalog (Comprehensive)
+
+| Signal | Strength | Description | Role | Reason | Expected Outcome |
+|--------|----------|-------------|------|--------|------------------|
+| ATTENTION | 10/10 | Critical blocker, production failure | Any | Human intervention required | Admin reviews within 1hr, makes decision |
+| BROKEN | 9/10 | Critical functionality not working | QC | POST-RELEASE found major bugs | Immediate hotfix, incident report |
+| BLOCKED | 9/10 | Cannot proceed without dependency | Any | Missing requirement, external blocker | Resolved in 24hrs or reprioritized |
+| DEGRADED | 7/10 | Performance degradation | SRE | POST-RELEASE slow responses | Performance analysis, optimization PR |
+| WORRIED | 6/10 | Technical concern or risk | developer | May introduce tech debt | Team discussion, evaluate alternatives |
+| UNCERTAIN | 5/10 | Need clarification | system-analyst | Ambiguous/contradictory requirements | Clarification meeting, decision documented |
+| EXCITED | 4/10 | Positive discovery | developer | Found better approach | New approach documented, considered |
+| CONFIDENT | 3/10 | Work completed with certainty | developer, QC, SRE | Tests passing, quality validated | Work merged, PRP advances |
+| READY | 2/10 | DoR satisfied | system-analyst | Research done, dependencies available | Developer begins implementation |
+| DEPLOYED | 2/10 | Deployed to production | SRE | POST-RELEASE health checks passed | Move to VALIDATED |
+| VALIDATED | 2/10 | Production quality validated | QC | POST-RELEASE QC passed | PRP complete, announce release |
+| COMPLETE | 1/10 | All DoD checked | coordinator | Everything validated/documented | PRP archived |
+
+### Cross-PRP Patterns (Learned from History)
+
+#### ✅ Pattern: Signal-Driven Success
+**Observed**: Z-up Coordinate System PRP
+**Flow**: WORRIED (6) → CONFIDENT (3) → COMPLETE (1)
+**Outcome**: Feature shipped in 1 day, zero issues
+**Lesson**: This workflow is optimal - use for all PRPs
+
+#### ⚠️ Pattern: Implementation-Documentation Mismatch
+**Observed**: Landing Page Comprehensive Redesign PRP
+**Issue**: PRP describes React/Vite, actual code is vanilla HTML/JS
+**Signal**: UNCERTAIN (5/10)
+**Lesson**: Always audit current code before writing PRPs
+
+#### ⚠️ Pattern: FALSE READY Signals
+**Observed**: Landing Page Phase 2 PRP
+**Issue**: READY signal but DoR items not satisfied (missing design mockups, 3D model, links)
+**Impact**: Starting work with incomplete DoR causes mid-project blockers
+**Lesson**: ORCHESTRATOR must validate DoR before accepting READY signals
+
+#### ✅ Pattern: Quality Gates Enforcement
+**Observed**: 100% of commits in conversation history
+**Process**: code → `npm run validate` → zero errors → commit → signal
+**Outcome**: No commits with failing tests or type errors
+**Lesson**: Continue this pattern religiously
+
+### 🚨 CURRENT INCIDENT REPORT (2025-10-28)
+
+**Severity**: MEDIUM
+**Signal Strength**: 5/10 (UNCERTAIN)
+**Affected PRPs**: Landing Page Comprehensive Redesign, Landing Page Phase 2
+
+**Issue**: User requested implementation of both landing page PRPs (6-8 weeks estimated) without clarifying architecture approach. PRP describes React/Vite/Framer Motion (52 bubbles, cluster/BOOM physics), but actual `docs/` contains vanilla HTML/CSS/JS (6 sections, basic demos).
+
+**Impact**:
+- Landing Page Comprehensive Redesign PRP blocked (cannot proceed)
+- Developer unsure: enhance existing HTML or start React rewrite
+- Risk: HIGH - wasted effort if wrong architecture chosen
+
+**Root Cause**: PRP written aspirationally (future state) vs descriptively (current state)
+
+**Recommended Action**:
+1. **IMMEDIATE**: User clarifies architecture (HTML enhancement OR React rewrite)
+2. **SHORT-TERM**: system-analyst audits actual `docs/` code and updates PRP
+3. **LONG-TERM**: Establish rule - PRPs must separate CURRENT vs DESIRED state sections
+
+**Admin Notification**: @admin - This ambiguity will cause wasted development effort on 6-8 week project. Requires immediate clarification before work begins.
+
+---
+
 ## 🚀 POST-RELEASE WORKFLOW
 
 ### Overview
