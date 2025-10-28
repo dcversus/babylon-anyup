@@ -31,30 +31,91 @@ A PRP (Phase Requirement Proposal) is the single source of truth for:
 - How to test it (Testing & Validation)
 - When it's complete (Exit Criteria)
 
+### 🚦 SIGNAL-BASED WORKFLOW
+
+Agents communicate through **signals** - emotional indicators that convey urgency, confidence, and status. Each agent leaves comments with signals in PRPs to coordinate asynchronously.
+
+#### Signal Reference Table
+
+| Signal | Strength | Meaning | When to Use |
+|--------|----------|---------|-------------|
+| **ATTENTION** | 10/10 | Critical blocker, accident, or production failure | Production down, security breach, impossible requirement |
+| **BLOCKED** | 9/10 | Cannot proceed without resolution | Missing dependency, conflicting requirements, external blocker |
+| **WORRIED** | 6/10 | Concern about approach or risk | Technical debt, performance concern, unclear requirement |
+| **UNCERTAIN** | 5/10 | Need clarification or validation | Ambiguous spec, multiple valid approaches, need decision |
+| **CONFIDENT** | 3/10 | Completed with high certainty | Straightforward implementation, well-tested, clear requirements |
+| **EXCITED** | 4/10 | Positive discovery or improvement | Found better approach, optimization opportunity, innovation |
+| **READY** | 2/10 | Prerequisites met, ready to proceed | DoR satisfied, research complete, tests passing |
+| **COMPLETE** | 1/10 | Work finished, validated, documented | All DoD items checked, quality gates passed |
+
+**Rules:**
+- Use 1-2 signals maximum per PRP update
+- Higher strength = higher priority for coordinator agent
+- Coordinator agent scans all PRPs for strongest signals first
+- Signals replace verbose status updates
+
+#### Signal Comment Format
+
+```markdown
+## 🔔 Agent Signals
+
+### [Date] - [Agent Role] - Signal: [SIGNAL_NAME]
+**Comment:** [Brief description of status/issue/discovery]
+**Context:** [Optional: Links, details, recommendations]
+**Action Required:** [What needs to happen next]
+```
+
+**Example:**
+```markdown
+## 🔔 Agent Signals
+
+### 2025-10-28 - system-analyst - Signal: ATTENTION
+**Comment:** Research shows conflicting coordinate transformation approaches in Babylon.js documentation vs. community examples
+**Context:**
+- Official docs: https://doc.babylonjs.com/features/featuresDeepDive/mesh/transforms
+- Community example: https://forum.babylonjs.com/t/coordinate-system-conversion/12345
+- Stack Overflow discussion: https://stackoverflow.com/q/67890123
+**Action Required:** Developer agent must validate which approach is correct before implementation
+
+### 2025-10-27 - developer - Signal: CONFIDENT
+**Comment:** Plugin architecture designed with strategy pattern, extensible and type-safe
+**Context:** Architecture section updated in PRP with class diagrams and code examples
+**Action Required:** Ready for implementation phase
+```
+
 ### The 3-Agent Collaboration Pattern
 
-For every significant change, use this parallel workflow:
+For every significant change, use this signal-driven workflow:
 
 ```typescript
-// Step 1: Launch agents in PARALLEL (single message, multiple Tool calls)
-Task(system-analyst): "Define DoR/DoD/user stories for {feature}"
-Task(developer): "Research technical approach and design for {feature}"
-Task(aqa-engineer): "Define quality gates and test strategy for {feature}"
+// Phase 1: Research & Planning (Coordinator launches)
+Task(system-analyst): "Research requirements, create DoR/DoD, leave SIGNAL in PRP"
+// System analyst investigates, finds issues → leaves ATTENTION signal
+// OR completes research → leaves READY signal
 
-// Step 2: Agents converge on PRP
-// Each agent updates their section of the PRP simultaneously
+// Phase 2: Coordinator Scans PRPs
+// Coordinator agent reads all PRPs, sorts by signal strength
+// Highest priority: ATTENTION (10) > BLOCKED (9) > WORRIED (6)
+// Coordinator decides next action based on strongest signal
 
-// Step 3: Implementation begins
-// Developer implements following PRP
-// AQA engineer writes tests following PRP
-// System analyst validates deliverables match PRP
+// Phase 3: Resolution/Implementation
+Task(developer): "Address [SIGNAL] from PRP, implement solution, update with new SIGNAL"
+// Developer resolves issues, implements → leaves CONFIDENT or WORRIED signal
+
+Task(aqa-engineer): "Write tests, validate quality, leave SIGNAL in PRP"
+// AQA validates → leaves COMPLETE or BLOCKED signal
+
+// Phase 4: Validation
+// System analyst reviews all signals, validates deliverables
+// If all signals are COMPLETE/CONFIDENT → PRP status: ✅ Complete
 ```
 
 **Why this works:**
-- Parallelism: 3x faster than sequential
-- Specialization: Each agent focuses on their domain
-- Completeness: No aspect (business, technical, quality) gets forgotten
-- Traceability: Everything documented in PRP before coding starts
+- **Asynchronous:** Agents don't wait, they signal and move on
+- **Priority-driven:** Strongest signals get attention first
+- **Personality:** Each agent has unique voice through signals
+- **Clarity:** Signal strength = urgency/priority (no ambiguity)
+- **Traceability:** Signal history shows decision flow
 
 ---
 
@@ -266,6 +327,15 @@ The ONLY allowed format for documenting features, bugs, or enhancements.
 
 ## 🎯 Phase Overview
 {Strategic context: Why this matters, business value, user impact}
+
+## 🔔 Agent Signals
+{Agents leave signals here to communicate status, blockers, discoveries}
+{Coordinator agent scans this section first to prioritize work}
+
+### [Date] - [Agent Role] - Signal: [SIGNAL_NAME]
+**Comment:** [Brief description]
+**Context:** [Links, details, recommendations]
+**Action Required:** [What needs to happen next]
 
 ## 📋 Definition of Ready (DoR)
 {Prerequisites to START - system-analyst defines this}
