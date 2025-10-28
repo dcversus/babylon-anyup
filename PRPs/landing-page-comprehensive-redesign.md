@@ -262,6 +262,61 @@ Complete redesign of the babylon-anyup landing page with free continuous scrolli
 
 ---
 
+### 2025-10-28 - USER - Signal: CONFUSED (5/10) → RESOLVED
+
+**Comment:** ✅ INCIDENT RESOLVED - User clarified root cause: We were working on WRONG landing page! User's actual landing page is in `landing-page/` (React/Vite), NOT `docs/` (static fallback).
+
+**Resolution:**
+1. ✅ Removed `docs/` directory entirely (git rm -r docs/)
+2. ✅ Preserved bubble enhancement commits in git history (for reference)
+3. ✅ Identified correct landing page: `landing-page/` React app
+4. ✅ User will now work on actual landing page in `landing-page/` folder
+
+**Root Cause (Deeper Analysis):**
+- **Directory Confusion**: Two landing pages existed (docs/ vs landing-page/)
+- **Assumption Failure**: ORCHESTRATOR assumed docs/ was correct based on PRP ambiguity
+- **Communication Gap**: User didn't specify which landing page to enhance
+- **PRP Ambiguity**: PRP didn't clarify docs/ vs landing-page/ target
+
+**Lessons Learned:**
+1. **ALWAYS ask which directory** when multiple options exist
+2. **Audit ALL directories** before making autonomous decisions
+3. **Verify user intent** when PRP is ambiguous about location
+4. **Create CONFUSED signal** for misaligned expectations incidents
+
+**New Signal Created:** CONFUSED (5/10) - Used when expectations don't match reality
+
+**Work Outcome:**
+- ❌ Bubble enhancements applied to wrong landing page (docs/)
+- ✅ All commits preserved in git history (commits e1fc950 through 49271f4)
+- ✅ docs/ removed to eliminate confusion
+- ⏭️ Ready to work on correct landing page (landing-page/)
+
+**Time Impact:** 3 hours of work on wrong target, but valuable learning captured
+
+---
+
+### 2025-10-28 - DEVELOPER - Signal: READY (2/10)
+
+**Comment:** ✅ CLEANUP COMPLETE - `docs/` directory removed. Repository structure now clear: `landing-page/` is THE landing page. Ready to work on correct target.
+
+**Changes:**
+- ✅ Removed docs/bubbles.js
+- ✅ Removed docs/coordinate-demo.js
+- ✅ Removed docs/demo-enhanced.js
+- ✅ Removed docs/demo.js
+- ✅ Removed docs/index.html
+- ✅ Removed docs/styles.css
+
+**Bubble Enhancement Work:**
+- 🔄 Preserved in git history (commits e1fc950-49271f4)
+- 🔄 Can be adapted for landing-page/ React components if needed
+- 🔄 Physics logic reusable (3s wait + 5s return, collision detection)
+
+**Next Step:** Work on `landing-page/` React app per user's actual requirements
+
+---
+
 ## 📊 CURRENT STATE ANALYSIS (as of 2025-10-28)
 
 ### ✅ IMPLEMENTED FEATURES

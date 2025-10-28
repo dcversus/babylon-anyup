@@ -1314,6 +1314,7 @@ The **ORCHESTRATOR** is a special meta-agent with unique authority:
 | BLOCKED | 9/10 | Cannot proceed without dependency | Any | Missing requirement, external blocker | Resolved in 24hrs or reprioritized |
 | DEGRADED | 7/10 | Performance degradation | SRE | POST-RELEASE slow responses | Performance analysis, optimization PR |
 | WORRIED | 6/10 | Technical concern or risk | developer | May introduce tech debt | Team discussion, evaluate alternatives |
+| **CONFUSED** | **5/10** | **Expectations don't match reality** | **Any** | **Wrong target, misaligned understanding** | **Stop work, clarify with user, realign** |
 | UNCERTAIN | 5/10 | Need clarification | system-analyst | Ambiguous/contradictory requirements | Clarification meeting, decision documented |
 | EXCITED | 4/10 | Positive discovery | developer | Found better approach | New approach documented, considered |
 | CONFIDENT | 3/10 | Work completed with certainty | developer, QC, SRE | Tests passing, quality validated | Work merged, PRP advances |
@@ -1348,27 +1349,61 @@ The **ORCHESTRATOR** is a special meta-agent with unique authority:
 **Outcome**: No commits with failing tests or type errors
 **Lesson**: Continue this pattern religiously
 
-### 🚨 CURRENT INCIDENT REPORT (2025-10-28)
+#### ⚠️ Pattern: Directory Confusion / Wrong Target
+**Observed**: Landing Page Enhancement (2025-10-28)
+**Issue**: Two landing pages existed (`docs/` vs `landing-page/`), agents worked on wrong one for 3 hours
+**Signal**: CONFUSED (5/10) → RESOLVED
+**Flow**: User said PANIC → ORCHESTRATOR investigated → Found no regression → User clarified correct directory → Removed wrong directory
+**Root Cause**:
+- PRP didn't specify target directory (ambiguous)
+- ORCHESTRATOR made autonomous decision without asking
+- Multiple valid targets existed (docs/ and landing-page/)
+**Resolution**:
+1. User clarified: `landing-page/` is THE landing page (React/Vite)
+2. Removed `docs/` directory entirely to eliminate confusion
+3. Preserved work in git history (commits e1fc950-49271f4)
+4. Created CONFUSED signal for this pattern
+**Lesson**:
+- **ALWAYS ask which directory** when multiple options exist
+- **List ALL potential targets** and confirm with user before starting
+- **Audit project structure** (ls -la, find directories) before autonomous decisions
+- **Use CONFUSED signal** when expectations don't match reality
+**Prevention**:
+- In PRP DoR: "Target directory explicitly specified"
+- system-analyst: Always list all directories in "Current State Audit"
+- ORCHESTRATOR: If >1 valid target, STOP and ask user
 
-**Severity**: MEDIUM
-**Signal Strength**: 5/10 (UNCERTAIN)
+### ✅ RESOLVED INCIDENT (2025-10-28) - Directory Confusion
+
+**Severity**: MEDIUM (3 hours wasted work)
+**Signal**: CONFUSED (5/10) → RESOLVED
 **Affected PRPs**: Landing Page Comprehensive Redesign, Landing Page Phase 2
 
-**Issue**: User requested implementation of both landing page PRPs (6-8 weeks estimated) without clarifying architecture approach. PRP describes React/Vite/Framer Motion (52 bubbles, cluster/BOOM physics), but actual `docs/` contains vanilla HTML/CSS/JS (6 sections, basic demos).
+**Issue**: Agents worked on wrong landing page (`docs/` vanilla HTML) for 3 hours when user's actual landing page was `landing-page/` (React/Vite).
 
 **Impact**:
-- Landing Page Comprehensive Redesign PRP blocked (cannot proceed)
-- Developer unsure: enhance existing HTML or start React rewrite
-- Risk: HIGH - wasted effort if wrong architecture chosen
+- ❌ 3 hours of development on wrong target
+- ✅ Work preserved in git history (commits e1fc950-49271f4)
+- ✅ Learning captured as new pattern
 
-**Root Cause**: PRP written aspirationally (future state) vs descriptively (current state)
+**Root Cause**:
+- PRP ambiguity about target directory
+- Two landing pages existed (docs/ and landing-page/)
+- ORCHESTRATOR made autonomous decision without confirming target
 
-**Recommended Action**:
-1. **IMMEDIATE**: User clarifies architecture (HTML enhancement OR React rewrite)
-2. **SHORT-TERM**: system-analyst audits actual `docs/` code and updates PRP
-3. **LONG-TERM**: Establish rule - PRPs must separate CURRENT vs DESIRED state sections
+**Resolution**:
+1. ✅ User clarified: `landing-page/` is THE landing page
+2. ✅ Removed `docs/` directory entirely (git rm -r docs/)
+3. ✅ Created CONFUSED signal for this pattern
+4. ✅ Documented prevention strategies
 
-**Admin Notification**: @admin - This ambiguity will cause wasted development effort on 6-8 week project. Requires immediate clarification before work begins.
+**Prevention Added**:
+- New pattern: "Directory Confusion / Wrong Target"
+- New signal: CONFUSED (5/10)
+- DoR requirement: "Target directory explicitly specified"
+- ORCHESTRATOR rule: If >1 valid target, STOP and ask user
+
+**Status**: ✅ **RESOLVED** - Ready to work on correct `landing-page/` directory
 
 ---
 
