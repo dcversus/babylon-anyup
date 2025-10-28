@@ -465,10 +465,15 @@ interface FloatingBubbleProps {
 const FloatingBubble = ({ bubble, setBubbles }: FloatingBubbleProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [lastMousePos, setLastMousePos] = useState<Vec2>({ x: 0, y: 0 });
+  const [totalDragDistance, setTotalDragDistance] = useState(0);
   const velocityTrackRef = useRef<Vec2[]>([]);
 
   const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
     if (bubble.state === 'clustered' || bubble.state === 're-clustering') return;
+
+    // Prevent default to avoid any link behavior
+    e.preventDefault();
+    e.stopPropagation();
 
     const pos = 'touches' in e ?
       { x: e.touches[0].clientX, y: e.touches[0].clientY } :
@@ -476,6 +481,7 @@ const FloatingBubble = ({ bubble, setBubbles }: FloatingBubbleProps) => {
 
     setIsDragging(true);
     setLastMousePos(pos);
+    setTotalDragDistance(0);
     velocityTrackRef.current = [];
 
     setBubbles((prev) =>
@@ -490,6 +496,9 @@ const FloatingBubble = ({ bubble, setBubbles }: FloatingBubbleProps) => {
   const handleMouseMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!isDragging) return;
 
+    // Prevent default to ensure smooth dragging
+    e.preventDefault();
+
     const pos = 'touches' in e ?
       { x: e.touches[0].clientX, y: e.touches[0].clientY } :
       { x: e.clientX, y: e.clientY };
@@ -498,6 +507,10 @@ const FloatingBubble = ({ bubble, setBubbles }: FloatingBubbleProps) => {
       x: pos.x - lastMousePos.x,
       y: pos.y - lastMousePos.y,
     };
+
+    // Track total drag distance
+    const distance = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+    setTotalDragDistance((prev) => prev + distance);
 
     velocityTrackRef.current.push(velocity);
     if (velocityTrackRef.current.length > 5) {
@@ -518,9 +531,11 @@ const FloatingBubble = ({ bubble, setBubbles }: FloatingBubbleProps) => {
   const handleMouseUp = useCallback(() => {
     if (!isDragging) return;
 
+    const wasDragged = totalDragDistance > 5; // Threshold for distinguishing click from drag
+
     setIsDragging(false);
 
-    // Calculate average velocity from recent movements
+    // Calculate average velocity from recent movements for throw effect
     const avgVelocity = velocityTrackRef.current.reduce(
       (acc, v) => ({ x: acc.x + v.x, y: acc.y + v.y }),
       { x: 0, y: 0 }
@@ -530,6 +545,7 @@ const FloatingBubble = ({ bubble, setBubbles }: FloatingBubbleProps) => {
       avgVelocity.y /= velocityTrackRef.current.length;
     }
 
+    // Apply acceleration on drop (throw physics)
     setBubbles((prev) =>
       prev.map((b) =>
         b.id === bubble.id
@@ -537,7 +553,9 @@ const FloatingBubble = ({ bubble, setBubbles }: FloatingBubbleProps) => {
               ...b,
               physics: {
                 ...b.physics,
-                velocity: { x: avgVelocity.x * 2, y: avgVelocity.y * 2 }, // Amplify for throw effect
+                velocity: wasDragged
+                  ? { x: avgVelocity.x * 2, y: avgVelocity.y * 2 } // Amplify for throw effect
+                  : { x: 0, y: 0 }, // No velocity if it was just a click
                 isDragging: false,
               },
               state: 'scattered' as BubbleState,
@@ -547,7 +565,16 @@ const FloatingBubble = ({ bubble, setBubbles }: FloatingBubbleProps) => {
     );
 
     velocityTrackRef.current = [];
-  }, [isDragging, bubble.id, setBubbles]);
+  }, [isDragging, totalDragDistance, bubble.id, setBubbles]);
+
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    // Only open link if it was a click (not a drag)
+    if (totalDragDistance <= 5 && bubble.state !== 'clustered' && bubble.state !== 're-clustering') {
+      window.open(bubble.source.url, '_blank', 'noopener,noreferrer');
+    }
+    e.preventDefault();
+    e.stopPropagation();
+  }, [totalDragDistance, bubble.source.url, bubble.state]);
 
   useEffect(() => {
     if (isDragging) {
@@ -620,10 +647,7 @@ const FloatingBubble = ({ bubble, setBubbles }: FloatingBubbleProps) => {
   };
 
   return (
-    <motion.a
-      href={bubble.source.url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <motion.div
       className="floating-bubble"
       style={{
         ...baseStyle,
@@ -631,6 +655,7 @@ const FloatingBubble = ({ bubble, setBubbles }: FloatingBubbleProps) => {
         zIndex: isDragging ? 999 : 100,
       }}
       animate={getAnimationProps()}
+      onClick={handleClick}
       onMouseDown={handleMouseDown}
       onTouchStart={handleMouseDown}
       whileHover={bubble.state !== 'clustered' ? { scale: (isBoomBubble ? 1.4 : 1.15) } : undefined}
@@ -656,6 +681,6 @@ const FloatingBubble = ({ bubble, setBubbles }: FloatingBubbleProps) => {
           month: 'short',
         })}
       </div>
-    </motion.a>
+    </motion.div>
   );
 };
