@@ -5,13 +5,21 @@ import './Slide.css';
 
 export const Slide2_Examples = () => {
 
-  const zUpSoftware = [
-    { name: 'Warcraft 3', color: '#c41e3a' },
-    { name: 'StarCraft 2', color: '#1ca3d6' },
-    { name: 'Blender', color: '#ea7600' },
-    { name: '3ds Max', color: '#00b8a9' },
-    { name: 'OpenGL', color: '#5586a4' },
-    { name: 'AutoCAD', color: '#e51937' },
+  const software = [
+    // Z-up Software
+    { name: 'Warcraft 3', color: '#c41e3a', system: 'Z-up' },
+    { name: 'StarCraft 2', color: '#1ca3d6', system: 'Z-up' },
+    { name: 'Blender', color: '#ea7600', system: 'Z-up' },
+    { name: '3ds Max', color: '#00b8a9', system: 'Z-up' },
+    { name: 'AutoCAD', color: '#e51937', system: 'Z-up' },
+    { name: 'Unreal Engine', color: '#0e1128', system: 'Z-up' },
+    // Y-up Software
+    { name: 'Unity', color: '#000000', system: 'Y-up' },
+    { name: 'Maya', color: '#37a3a3', system: 'Y-up' },
+    { name: 'Cinema 4D', color: '#011a6a', system: 'Y-up' },
+    { name: 'Houdini', color: '#ff4713', system: 'Y-up' },
+    { name: 'Modo', color: '#0099ff', system: 'Y-up' },
+    { name: 'Babylon.js', color: '#bb464b', system: 'Y-up' },
   ];
 
   return (
@@ -24,21 +32,23 @@ export const Slide2_Examples = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="slide-title">Where Z-up Lives</h1>
-          <h2 className="slide-subtitle">Game Engines, 3D Software & CAD</h2>
+          <h1 className="slide-title">Coordinate Systems in 3D</h1>
+          <h2 className="slide-subtitle">Y-up vs Z-up: The Fundamental Divide</h2>
 
           <div className="software-grid">
-            {zUpSoftware.map((software, index) => (
+            {software.map((item, index) => (
               <motion.div
-                key={software.name}
+                key={item.name}
                 className="software-card"
-                style={{ borderLeft: `4px solid ${software.color}` }}
+                style={{ borderLeft: `4px solid ${item.color}` }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+                transition={{ duration: 0.5, delay: 0.2 + index * 0.08 }}
               >
-                <div className="software-name">{software.name}</div>
-                <div className="software-tag">Z-up</div>
+                <div className="software-name">{item.name}</div>
+                <div className={`software-tag ${item.system === 'Z-up' ? 'zup' : 'yup'}`}>
+                  {item.system}
+                </div>
               </motion.div>
             ))}
           </div>

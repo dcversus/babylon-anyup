@@ -26,6 +26,16 @@
   max-width: 900px;
   width: 100%;
   z-index: 2;
+  animation: floatUpDown 6s ease-in-out infinite;
+}
+
+@keyframes floatUpDown {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
 /* Floating Container */

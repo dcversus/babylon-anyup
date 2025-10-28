@@ -63,6 +63,29 @@ export const Slide5_EdgeCraft = () => {
           <span className="pain-emoji">😫</span>
           <span className="pain-text">And this is just ONE asset type!</span>
         </motion.div>
+
+        <motion.div
+          className="performance-impact"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.8 }}
+        >
+          <h3 className="performance-title">Real Performance Cost</h3>
+          <div className="performance-stats">
+            <div className="perf-stat">
+              <span className="perf-number">~15ms</span>
+              <span className="perf-label">Per transform call</span>
+            </div>
+            <div className="perf-stat">
+              <span className="perf-number">60%</span>
+              <span className="perf-label">CPU overhead</span>
+            </div>
+            <div className="perf-stat">
+              <span className="perf-number">100s</span>
+              <span className="perf-label">Of objects per scene</span>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
