@@ -10,6 +10,43 @@ Complete redesign of the babylon-anyup landing page with free continuous scrolli
 
 ---
 
+## 🔔 Agent Signals
+
+### 2025-10-28 - coordinator - Signal: UNCERTAIN (5/10)
+
+**Comment:** Landing page implementation status is ambiguous. Current docs/ implementation is simple HTML/CSS/JS (6 sections, no React), but PRP describes React/Vite/Framer Motion architecture with 52 bubbles. Mismatch between PRP documentation and actual implementation.
+
+**Context:**
+
+**Current Implementation (docs/):**
+- 6 HTML sections: intro, coordinate-systems, community, solution
+- 3 JS files: bubbles.js, demo-enhanced.js, demo.js, coordinate-demo.js (newly added)
+- Simple CSS with no React/Framer Motion
+- No 52-bubble system visible
+- No cluster/BOOM animation
+- Basic Babylon.js demos present
+
+**PRP Claims:**
+- React components with TypeScript
+- Framer Motion animations
+- 52 floating comment bubbles
+- Cluster/BOOM physics system
+- Vite build system
+- CSS Modules
+
+**Discrepancy:** PRP appears to describe a PLANNED architecture, not the CURRENT implementation. The "IMPLEMENTED FEATURES" section may be aspirational rather than actual.
+
+**Action Required:**
+1. **system-analyst** should audit actual `docs/` implementation
+2. Clarify: Is this PRP for a NEW React rewrite, or documenting EXISTING HTML implementation?
+3. Update PRP status to reflect reality
+4. If React rewrite is planned, move to "Phase 2" PRP
+5. If HTML implementation is current, update PRP to match actual code
+
+**Risk:** Continuing development without clarity on implementation approach will lead to wasted effort.
+
+---
+
 ## 📊 CURRENT STATE ANALYSIS (as of 2025-10-28)
 
 ### ✅ IMPLEMENTED FEATURES

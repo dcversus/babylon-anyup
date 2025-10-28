@@ -16,6 +16,48 @@ This is a MASSIVE redesign of the babylon-anyup landing page with advanced physi
 
 ---
 
+## 🔔 Agent Signals
+
+### 2025-10-28 - coordinator - Signal: READY (2/10)
+
+**Comment:** Phase 2 PRP is well-documented and ready for execution. Phase 1 (Slide 1 restructure) is marked complete. This PRP contains comprehensive requirements for advanced landing page features.
+
+**Context:**
+
+**Phase 1 Status:** ✅ Complete
+- Split layout implemented
+- Package name with copy button
+- TypeScript code example
+- Max-width 1000px container
+
+**Phase 2 Scope (This PRP):**
+- 52 floating comment bubbles with cluster/BOOM physics
+- 3D railway lever model for coordinate system switching
+- Pinball physics interactions
+- Community Solutions section with clickable cards
+- Advanced footer with links
+- Mobile responsive design
+- Performance optimization
+
+**DoR Assessment:**
+- ✅ Phase 1 completed
+- ✅ Requirements documented
+- ⚠️ Design mockups needed for complex animations
+- ⚠️ 3D lever model needs sourcing (copyright-free)
+- ⚠️ Performance budget undefined
+- ⚠️ Community Solutions links not collected
+
+**Recommendation:** Before starting implementation:
+1. Create design mockups for bubble choreography
+2. Source/create 3D lever model (or use procedural geometry)
+3. Define performance budget (target FPS, bundle size)
+4. Collect Community Solutions links
+5. Get user approval on scope (6-8 weeks is significant investment)
+
+**Action Required:** User should review Phase 2 scope and confirm priority. If approved, system-analyst should complete DoR items before developer begins implementation.
+
+---
+
 ## 📋 Definition of Ready (DoR)
 
 - [x] Phase 1 (Slide 1 restructure) completed and deployed
