@@ -445,14 +445,16 @@ export const FloatingBubbles = () => {
         </motion.button>
       )}
 
-      {/* Floating bubbles */}
-      {bubbles.map((bubble) => (
-        <FloatingBubble
-          key={bubble.id}
-          bubble={bubble}
-          setBubbles={setBubbles}
-        />
-      ))}
+      {/* Floating bubbles - only render visible ones for performance */}
+      {bubbles
+        .filter((bubble) => bubble.state !== 'clustered' && bubble.state !== 're-clustering')
+        .map((bubble) => (
+          <FloatingBubble
+            key={bubble.id}
+            bubble={bubble}
+            setBubbles={setBubbles}
+          />
+        ))}
     </div>
   );
 };

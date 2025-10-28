@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { BabylonSwitcher } from '../components/BabylonSwitcher';
 import './Slide.css';
 import './Slide1_Intro.css';
 
@@ -31,79 +32,11 @@ export const Slide1_Intro = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          {/* Floating Container */}
-          <motion.div
-            className="intro-floating-container"
-            animate={{
-              y: [0, -15, 0],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          >
-            {/* Rotating Figure */}
-            <motion.div
-              className="intro-figure"
-              animate={{
-                rotateY: switcherEnabled ? 360 : 0,
-                scale: switcherEnabled ? 1.1 : 1,
-              }}
-              transition={{
-                rotateY: {
-                  duration: switcherEnabled ? 2 : 0,
-                  ease: 'easeOut',
-                },
-                scale: {
-                  duration: 0.5,
-                  ease: 'easeOut',
-                },
-              }}
-            >
-              <div className="figure-cube">
-                <div className="cube-face cube-front">Z</div>
-                <div className="cube-face cube-back">↑</div>
-                <div className="cube-face cube-right">✓</div>
-                <div className="cube-face cube-left">✓</div>
-                <div className="cube-face cube-top">✓</div>
-                <div className="cube-face cube-bottom">✓</div>
-              </div>
-            </motion.div>
-
-            {/* Switcher */}
-            <motion.div
-              className="intro-switcher"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-            >
-              <motion.button
-                className={`switcher-button ${switcherEnabled ? 'enabled' : ''}`}
-                onClick={() => setSwitcherEnabled(!switcherEnabled)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span className="switcher-label">Enable Z-up!</span>
-                <div className="switcher-track">
-                  <motion.div
-                    className="switcher-thumb"
-                    animate={{
-                      x: switcherEnabled ? 28 : 0,
-                    }}
-                    transition={{
-                      type: 'spring',
-                      stiffness: 500,
-                      damping: 30,
-                    }}
-                  />
-                </div>
-                <span className={`switcher-status ${switcherEnabled ? 'on' : 'off'}`}>
-                  {switcherEnabled ? 'ON' : 'OFF'}
-                </span>
-              </motion.button>
-            </motion.div>
-          </motion.div>
+          {/* 3D Babylon.js Switcher */}
+          <BabylonSwitcher
+            enabled={switcherEnabled}
+            onToggle={() => setSwitcherEnabled(!switcherEnabled)}
+          />
 
           {/* Title and Description */}
           <motion.div
