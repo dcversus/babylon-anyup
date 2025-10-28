@@ -1445,11 +1445,13 @@ const plugin = new AnyUpPlugin({
 - [x] **BOOM animation**: "💥 BOOM!" text with pulse effect and multi-shadow glow
 - [x] **Staggered release**: Bubbles release with 50ms delay, deltakosh after 1.5s
 - [x] **Fixed typo**: isClustered (was "isClus tered" with space)
-- [x] **Quality gates**: TypeScript ✅ ESLint ✅ Commit e1fc950
+- [x] **Quality gates**: TypeScript ✅ ESLint ✅ Commits: e1fc950, 61e9b98, 76166cc
+- [x] **Timed auto-release**: 30s intervals, 2min total, deltakosh LAST, edges positioning (commit 989446d)
+- [x] **IntersectionObserver integration**: Triggers on community section scroll into view
+- [x] **Auto-stop feature**: Timer stops if user scrolls away from community section
 
 ### 🟡 In Progress
-- [ ] Implement timed auto-release (30s intervals on Slide 3)
-- [ ] Add slide-specific bubble pop-out behavior (different slides release different bubbles)
+- [ ] Add slide-specific bubble pop-out behavior (different slides release different bubbles based on keywords)
 - [ ] Implement 3s wait + 5s return-to-cluster animation
 - [ ] Add remaining Babylon.js scenes (2, 4, 6)
 - [ ] Complete Slide2 with coordinate system grid
