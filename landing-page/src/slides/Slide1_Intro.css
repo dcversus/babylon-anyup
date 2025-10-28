@@ -10,30 +10,116 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  text-align: center;
-  padding: 40px 80px;
+  padding: 40px 20px;
   box-sizing: border-box;
   width: 100%;
 }
 
-.intro-main {
+.intro-container {
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 3rem;
-  max-width: 900px;
-  width: 100%;
-  z-index: 2;
-  animation: floatUpDown 6s ease-in-out infinite;
+  gap: 4rem;
 }
 
-@keyframes floatUpDown {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
+.intro-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.intro-left {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.intro-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Quick Start Section */
+.intro-quickstart {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  margin-top: 2rem;
+}
+
+.quickstart-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 0;
+  text-align: center;
+}
+
+/* Code Example with Syntax Highlighting */
+.code-example {
+  margin-top: 1rem;
+}
+
+.code-pre {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(88, 101, 242, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  overflow-x: auto;
+  margin: 0;
+}
+
+.code-typescript {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+  white-space: pre;
+}
+
+/* Syntax Highlighting Colors */
+.code-keyword {
+  color: #c792ea;
+  font-weight: 600;
+}
+
+.code-string {
+  color: #c3e88d;
+}
+
+.code-comment {
+  color: #546e7a;
+  font-style: italic;
+}
+
+.code-function {
+  color: #82aaff;
+}
+
+.code-property {
+  color: #f07178;
+}
+
+.code-punctuation {
+  color: #89ddff;
+}
+
+.code-operator {
+  color: #89ddff;
+}
+
+.code-boolean {
+  color: #ff5370;
 }
 
 /* Floating Container */
@@ -170,19 +256,23 @@
   color: #22c55e;
 }
 
-/* Title and Description */
-.intro-text {
+/* Title with Copy Button */
+.title-with-copy {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
   align-items: center;
+  gap: 1rem;
 }
 
 .intro-title {
-  font-size: 5rem;
+  font-size: 3.5rem;
   font-weight: 900;
-  line-height: 1;
+  line-height: 1.1;
   margin: 0;
+}
+
+.title-package {
+  color: #94a3b8;
+  font-weight: 700;
 }
 
 .title-babylon {
@@ -197,6 +287,30 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.title-copy-btn {
+  padding: 0.5rem;
+  background: rgba(88, 101, 242, 0.2);
+  border: 1px solid rgba(88, 101, 242, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 42px;
+}
+
+.title-copy-btn:hover {
+  background: rgba(88, 101, 242, 0.3);
+  border-color: rgba(88, 101, 242, 0.5);
+  transform: scale(1.05);
+}
+
+.copy-icon-small {
+  font-size: 1.2rem;
 }
 
 .intro-description {
